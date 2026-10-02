@@ -1,0 +1,1973 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0C271E">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Flat 1 Poker">
+<meta name="description" content="Hand tracker for the Flat 1 poker game: blinds, pots, winners, profit and loss, and who owes who.">
+<title>Flat 1 Poker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%23E5533D'/%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%23F7F3E8' stroke-width='6' stroke-dasharray='7 13.42'/%3E%3Ccircle cx='32' cy='32' r='17' fill='%23E5533D' stroke='%23F7F3E8' stroke-opacity='.7' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&display=swap">
+<style>
+:root{
+  --bottle:#0C271E;
+  --baize:#113426;
+  --baize-hi:#174433;
+  --line:#245641;
+  --line-soft:rgba(238,241,232,.11);
+  --felt-1:#25845E;
+  --felt-2:#1B6548;
+  --felt-3:#114631;
+  --rail:#24180F;
+  --rail-hi:#46321F;
+  --chalk:#EEF1E8;
+  --sage:#9CB9AA;
+  --ivory:#F3ECDA;
+  --ink:#12100C;
+  --up:#8EE6B2;
+  --down:#FF9C88;
+  --warn:#F2C76B;
+  --display:"Big Shoulders Display","Big Shoulders","Oswald","Arial Narrow","Roboto Condensed",Impact,sans-serif;
+  --ui:"Archivo","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bottle)}
+body{
+  margin:0;min-height:100%;
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(37,132,94,.22), transparent 60%),
+    var(--bottle);
+  color:var(--chalk);
+  font:400 16px/1.5 var(--ui);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+body.modal-open{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--ivory);outline-offset:2px;border-radius:8px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- top bar ---------- */
+.top{
+  max-width:1180px;margin:0 auto;
+  padding:18px max(16px, env(safe-area-inset-right,0px)) 6px max(16px, env(safe-area-inset-left,0px));
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:12px;
+}
+.top .meta{grid-column:1 / -1}
+.wordmark{
+  margin:0;font:900 clamp(38px, 11vw, 60px)/.86 var(--display);
+  letter-spacing:.005em;color:var(--ivory);
+  text-shadow:0 2px 0 rgba(0,0,0,.35);
+}
+.meta{margin:8px 0 0;color:var(--sage);font-size:14px}
+.meta span{white-space:nowrap}
+.meta span+span::before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--line);margin:0 9px 3px}
+.top-actions{display:flex;align-items:center;gap:8px;padding-top:4px;position:relative}
+
+.btn-ghost{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:42px;padding:0 14px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(17,52,38,.7);
+  font-weight:600;font-size:15px;white-space:nowrap;
+}
+.btn-ghost:hover{background:var(--baize-hi)}
+.btn-ghost.sm{min-height:36px;padding:0 12px;font-size:14px}
+.btn-ghost .count{
+  min-width:20px;height:20px;border-radius:999px;padding:0 6px;
+  background:var(--warn);color:var(--ink);font-size:12px;font-weight:700;
+  display:inline-grid;place-items:center;
+}
+.btn-ghost .count:empty{display:none}
+.icon-btn{
+  width:42px;height:42px;border-radius:50%;display:inline-grid;place-items:center;
+  border:1px solid var(--line);background:rgba(17,52,38,.7);
+}
+.icon-btn:hover{background:var(--baize-hi)}
+.icon-btn.sm{width:36px;height:36px}
+.icon-btn svg,.btn-ghost svg{width:18px;height:18px;flex:none}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;width:100%;
+  min-height:56px;border-radius:16px;background:var(--ivory);color:var(--ink);
+  font:700 17px var(--ui);
+  box-shadow:0 3px 0 #C9BC9A, 0 10px 24px rgba(0,0,0,.28);
+  transition:transform .08s, box-shadow .08s, opacity .2s;
+}
+.btn-primary:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #C9BC9A, 0 6px 14px rgba(0,0,0,.28)}
+.btn-primary:disabled{opacity:.38;box-shadow:none}
+.btn-danger{
+  display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;
+  border-radius:14px;border:1px solid rgba(255,156,136,.45);color:var(--down);font-weight:600;
+}
+.btn-text{
+  display:block;margin:10px auto 0;padding:8px 12px;color:var(--sage);font-size:14px;font-weight:500;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(156,185,170,.4);
+}
+.btn-text.sm{display:inline-block;margin:0;padding:4px 6px;font-size:13px}
+
+/* ---------- dropdown menus ---------- */
+.dd{position:relative}
+.dd-menu{
+  position:absolute;right:0;top:calc(100% + 8px);z-index:60;
+  width:min(300px, calc(100vw - 32px));
+  background:#0F3125;border:1px solid var(--line);border-radius:18px;padding:6px;
+  box-shadow:0 22px 48px rgba(0,0,0,.55);
+  transform-origin:top right;animation:pop .14s ease-out;
+}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.dd-title{margin:8px 12px 6px;font-weight:600;font-size:15px}
+.dd-note{margin:6px 12px 8px;color:var(--sage);font-size:13px;line-height:1.4}
+.mi{
+  display:flex;width:100%;align-items:center;gap:10px;min-height:46px;
+  padding:8px 12px;border-radius:12px;text-align:left;font-weight:500;font-size:15px;
+}
+.mi:hover,.mi:focus-visible{background:var(--baize-hi);outline-offset:-2px}
+.mi.danger{color:var(--down)}
+.mi-sep{height:1px;background:var(--line-soft);margin:5px 8px}
+.mi-name{flex:1;font-weight:600}
+.mi-state{color:var(--sage);font-size:13px}
+.mi[aria-checked="true"] .mi-state{color:var(--warn)}
+.tick{
+  width:22px;height:22px;border-radius:7px;border:2px solid var(--line);flex:none;
+  display:grid;place-items:center;
+}
+.mi[aria-checked="true"] .tick{background:var(--warn);border-color:var(--warn)}
+.mi[aria-checked="true"] .tick::after{
+  content:"";width:10px;height:6px;border:solid var(--ink);border-width:0 0 2.5px 2.5px;
+  transform:translateY(-1px) rotate(-45deg);
+}
+
+/* ---------- layout ---------- */
+.layout{
+  max-width:1180px;margin:0 auto;
+  padding:8px max(16px, env(safe-area-inset-right,0px)) 48px max(16px, env(safe-area-inset-left,0px));
+  display:grid;gap:8px;
+}
+.col{min-width:0}
+@media (min-width:980px){
+  .layout{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:start}
+  .col-ledger{padding-top:10px}
+}
+
+/* ---------- chips ---------- */
+.chip{
+  --c:#E5533D;
+  width:54px;height:54px;border-radius:50%;flex:none;
+  display:grid;place-items:center;
+  background:
+    radial-gradient(circle closest-side, var(--c) 0 63%, rgba(255,255,255,.6) 64% 68%, transparent 69%),
+    repeating-conic-gradient(from 8deg, var(--c) 0deg 30deg, #F7F3E8 30deg 45deg);
+  box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.28), 0 3px 0 rgba(0,0,0,.4), 0 6px 14px rgba(0,0,0,.3);
+  color:var(--ink);font:900 19px/1 var(--display);letter-spacing:.02em;
+}
+.dot{
+  width:12px;height:12px;border-radius:50%;flex:none;background:var(--c,#999);
+  box-shadow:0 0 0 2px rgba(247,243,232,.75) inset;
+}
+.mini-chip{
+  width:26px;height:26px;border-radius:50%;flex:none;display:inline-block;
+  background:
+    radial-gradient(circle closest-side, var(--c) 0 58%, transparent 60%),
+    repeating-conic-gradient(var(--c) 0deg 30deg, #F7F3E8 30deg 45deg);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3), 0 2px 0 rgba(0,0,0,.35);
+}
+
+/* ---------- the table ---------- */
+.table-area{padding:6px 0 2px}
+.felt-wrap{
+  position:relative;width:100%;max-width:600px;margin:0 auto;
+  height:clamp(262px, 72vw, 372px);
+}
+.felt{
+  position:absolute;inset:10% 3.5% 15% 3.5%;border-radius:50%;
+  background:radial-gradient(ellipse 72% 62% at 50% 40%, var(--felt-1), var(--felt-2) 56%, var(--felt-3));
+  box-shadow:
+    0 0 0 9px var(--rail),
+    0 0 0 10px var(--rail-hi),
+    0 0 0 11px rgba(0,0,0,.4),
+    0 22px 44px rgba(0,0,0,.5),
+    inset 0 -20px 50px rgba(0,0,0,.32),
+    inset 0 2px 0 rgba(255,255,255,.06);
+}
+.felt::before{
+  content:"";position:absolute;inset:13% 9%;border-radius:50%;
+  border:1.5px solid rgba(243,236,218,.13);
+}
+.felt::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;opacity:.32;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.pot-center{
+  position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;text-align:center;pointer-events:none;z-index:1;
+}
+.pot-label{font-size:13px;color:rgba(238,241,232,.72);font-weight:500}
+.pot-amt{font:900 clamp(38px, 11vw, 52px)/.95 var(--display);color:var(--ivory);font-variant-numeric:tabular-nums;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.pot-hand{font-size:13px;color:rgba(238,241,232,.72);margin-top:3px}
+
+.seat{
+  position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-27px);
+  display:flex;flex-direction:column;align-items:center;gap:5px;z-index:2;
+  transition:opacity .3s, filter .3s;
+}
+.seat[data-seat="0"]{--x:19%;--y:15%}
+.seat[data-seat="1"]{--x:81%;--y:15%}
+.seat[data-seat="2"]{--x:50%;--y:81%}
+.seat .chip{position:relative}
+.s-badge{
+  position:absolute;top:-6px;left:calc(50% + 16px);
+  padding:2px 7px;border-radius:999px;background:var(--ivory);color:var(--ink);
+  font:700 11px/1.35 var(--ui);box-shadow:0 2px 6px rgba(0,0,0,.35);
+}
+.s-badge:empty{display:none}
+.plaque{
+  display:flex;flex-direction:column;align-items:center;min-width:76px;
+  padding:3px 10px 4px;border-radius:11px;
+  background:rgba(8,26,18,.88);border:1px solid rgba(243,236,218,.1);
+}
+.s-name{font-weight:600;font-size:14px;line-height:1.2;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s-pl{font-size:13px;line-height:1.25;font-variant-numeric:tabular-nums;font-weight:600}
+.seat[data-out="true"]{opacity:.5;filter:grayscale(.85)}
+.seat[data-out="true"] .s-pl{color:var(--sage);font-weight:500}
+
+.bet{
+  --c:#999;
+  position:absolute;left:var(--bx);top:var(--by);transform:translate(-50%,-50%);
+  display:flex;align-items:center;gap:6px;padding:3px 9px 3px 4px;border-radius:999px;
+  background:rgba(4,26,17,.5);font:600 13px/1.2 var(--ui);font-variant-numeric:tabular-nums;
+  opacity:0;transition:opacity .2s;z-index:1;pointer-events:none;
+}
+.bet.show{opacity:1}
+.bet.folded{opacity:.55}
+.bet.folded .bet-amt{text-decoration:line-through;text-decoration-color:rgba(238,241,232,.6)}
+.bet .stack{
+  width:16px;height:16px;border-radius:50%;background:var(--c);
+  border:2px dotted rgba(247,243,232,.85);
+  box-shadow:0 2px 0 rgba(0,0,0,.35), 0 -2px 0 -0.5px var(--c);
+}
+.bet[data-seat="0"]{--bx:28%;--by:51%}
+.bet[data-seat="1"]{--bx:72%;--by:51%}
+.bet[data-seat="2"]{--bx:71%;--by:64%}
+
+.puck{
+  position:absolute;left:var(--px);top:var(--py);width:28px;height:28px;margin:-14px 0 0 -14px;
+  border-radius:50%;z-index:3;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%, #fff, var(--ivory) 58%, #D8CDB0);
+  color:var(--ink);font:900 15px/1 var(--display);
+  box-shadow:0 2px 0 #B3A684, 0 5px 12px rgba(0,0,0,.45);
+}
+.puck.animate{transition:left .65s cubic-bezier(.55,.05,.2,1), top .65s cubic-bezier(.55,.05,.2,1)}
+.puck[data-seat="0"]{--px:36%;--py:30%}
+.puck[data-seat="1"]{--px:64%;--py:30%}
+.puck[data-seat="2"]{--px:36%;--py:70%}
+.puck[hidden]{display:none}
+
+/* ---------- hand entry panel ---------- */
+.panel-hand{
+  margin-top:14px;
+  background:linear-gradient(180deg, var(--baize-hi), var(--baize) 120px);
+  border:1px solid var(--line);border-radius:26px;
+  padding:18px 16px 16px;
+  box-shadow:0 18px 40px rgba(0,0,0,.25);
+}
+.hand-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hand-title{margin:0;font:900 38px/1 var(--display);color:var(--ivory);font-variant-numeric:tabular-nums}
+.dealer-pick{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--sage)}
+.dealer-pick select{
+  appearance:none;-webkit-appearance:none;
+  min-height:40px;padding:0 34px 0 12px;border-radius:12px;
+  border:1px solid var(--line);background:var(--bottle) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%239CB9AA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+  color:var(--chalk);font-weight:600;font-size:15px;
+}
+.blind-line{margin:6px 0 4px;color:var(--sage);font-size:14px}
+.out-line{margin:10px 0 0;color:var(--sage);font-size:14px}
+
+.prow{padding:13px 0 12px;border-top:1px solid var(--line-soft)}
+.prow:first-child{margin-top:10px}
+.prow-top{display:flex;align-items:center;gap:8px;min-height:46px}
+.pname{font-weight:600;font-size:18px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pos{
+  font:700 11px/1.4 var(--ui);padding:2px 7px;border-radius:999px;
+  background:var(--ivory);color:var(--ink);flex:none;
+}
+.dmark{
+  width:20px;height:20px;border-radius:50%;flex:none;display:inline-grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%, #fff, var(--ivory) 60%, #D8CDB0);
+  color:var(--ink);font:900 12px/1 var(--display);box-shadow:0 1px 0 #B3A684;
+}
+.fold{
+  margin-left:auto;min-height:36px;padding:0 12px;border-radius:999px;
+  border:1px solid var(--line);color:var(--sage);font-size:14px;font-weight:600;flex:none;
+}
+.fold[aria-pressed="true"]{background:rgba(255,156,136,.14);border-color:rgba(255,156,136,.5);color:var(--down)}
+.amt{
+  display:flex;align-items:center;gap:2px;flex:none;
+  width:112px;height:48px;padding:0 10px 0 12px;border-radius:14px;
+  background:var(--bottle);border:1px solid var(--line);
+  color:var(--sage);font:800 20px var(--display);
+}
+.amt:focus-within{border-color:var(--ivory)}
+.amt input{
+  width:100%;min-width:0;background:none;border:0;outline:none;padding:0;
+  color:var(--chalk);font:900 27px/1 var(--display);text-align:right;font-variant-numeric:tabular-nums;
+}
+.prow.is-folded .pname{color:var(--sage);text-decoration:line-through;text-decoration-color:rgba(156,185,170,.6)}
+.prow.is-folded .amt input{color:var(--sage)}
+.quick{
+  display:grid;grid-template-columns:1.3fr repeat(5, minmax(0,1fr)) .9fr;gap:5px;margin-top:9px;
+}
+.q{
+  min-height:44px;border-radius:12px;padding:0 2px;
+  background:rgba(12,39,30,.75);border:1px solid var(--line);
+  font-weight:600;font-size:14px;line-height:1.05;white-space:nowrap;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:transform .06s, background .15s;
+}
+.q:hover:not(:disabled){background:var(--baize-hi)}
+.q:active:not(:disabled){transform:translateY(1px);background:var(--line)}
+.q small{font-size:11px;font-weight:500;color:var(--sage);margin-top:2px}
+.q-call{border-color:rgba(243,236,218,.45);color:var(--ivory)}
+.q-call:disabled{color:var(--sage);border-color:var(--line);opacity:.6}
+.q-undo svg{width:18px;height:18px}
+.q-undo{color:var(--sage)}
+@media (max-width:359px){
+  .quick{grid-template-columns:repeat(4, minmax(0,1fr))}
+  .amt{width:100px}
+}
+
+.hand-foot{margin-top:6px;border-top:1px solid var(--line-soft);padding-top:14px}
+.pot-line{display:flex;align-items:baseline;justify-content:space-between}
+.pot-line span{color:var(--sage);font-size:15px}
+.pot-line strong{font:900 40px/1 var(--display);color:var(--ivory);font-variant-numeric:tabular-nums}
+.winner-head{display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}
+.winner-head > span{font-weight:600;font-size:16px}
+.split{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--sage);cursor:pointer;min-height:36px}
+.split input{
+  appearance:none;-webkit-appearance:none;margin:0;width:38px;height:22px;border-radius:999px;
+  background:var(--bottle);border:1px solid var(--line);position:relative;cursor:pointer;transition:background .15s;
+}
+.split input::after{
+  content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:var(--sage);transition:transform .15s, background .15s;
+}
+.split input:checked{background:var(--line)}
+.split input:checked::after{transform:translateX(16px);background:var(--ivory)}
+.winner-chips{display:grid;grid-template-columns:repeat(auto-fit, minmax(92px,1fr));gap:8px}
+.wchip{
+  min-height:52px;border-radius:14px;padding:0 10px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:rgba(12,39,30,.75);border:1.5px solid var(--line);font-weight:600;font-size:16px;
+}
+.wchip .dot{width:14px;height:14px}
+.wchip[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.wchip[aria-pressed="true"] .dot{background:var(--ink);box-shadow:none;width:8px;height:8px}
+.wchip:disabled{opacity:.4;text-decoration:line-through}
+.preview{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;min-height:0}
+.preview:empty{display:none}
+.pv{display:inline-flex;align-items:center;gap:7px;font-size:15px}
+.pv b{font-variant-numeric:tabular-nums}
+.hint{margin:12px 0 12px;min-height:21px;color:var(--sage);font-size:14px}
+.hint.warn{color:var(--warn)}
+.empty-hand{padding:18px 0 4px}
+.empty-hand p{margin:0 0 14px;color:var(--sage)}
+
+.up{color:var(--up)}
+.down{color:var(--down)}
+.even{color:var(--sage)}
+
+/* ---------- ledger sections ---------- */
+.ledger{padding:26px 0 8px;border-top:1px solid var(--line-soft)}
+.col-ledger .ledger:first-child{border-top:0}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec-head h2{margin:0;font:900 31px/1 var(--display);color:var(--ivory)}
+.sec-sub{margin:4px 0 0;color:var(--sage);font-size:14px;width:100%}
+.sec-foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.empty{margin:0;color:var(--sage)}
+
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:rgba(12,39,30,.8);border:1px solid var(--line)}
+.seg button{min-height:32px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--sage)}
+.seg button[aria-pressed="true"]{background:var(--ivory);color:var(--ink)}
+
+.owes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.owe{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:18px;background:var(--baize);border:1px solid var(--line);
+}
+.owe-pair{display:flex;align-items:center;gap:4px;color:var(--sage)}
+.owe-pair svg{width:16px;height:16px}
+.owe-text{font-size:16px;line-height:1.3}
+.owe-text b{font-weight:700}
+.owe-amt{font:900 34px/1 var(--display);color:var(--ivory);font-variant-numeric:tabular-nums}
+
+.stand{list-style:none;margin:0;padding:0}
+.stand li{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;
+  padding:11px 0;border-bottom:1px solid var(--line-soft);
+}
+.stand li:last-child{border-bottom:0}
+.st-main{display:flex;flex-direction:column;min-width:0}
+.st-name{font-weight:600;font-size:17px}
+.st-sub{color:var(--sage);font-size:13.5px}
+.st-net{font:900 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.chart{margin-top:16px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;color:var(--sage);font-size:13px}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.chart-legend i{width:14px;height:3px;border-radius:2px;background:var(--c)}
+
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;max-height:620px;overflow-y:auto;border-radius:14px;border:1px solid var(--line-soft)}
+.hist{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;font-variant-numeric:tabular-nums}
+.hist th,.hist td{padding:9px 7px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap;vertical-align:top}
+.hist thead th{
+  position:sticky;top:0;z-index:2;background:#0F3024;color:var(--sage);font-weight:600;font-size:13px;vertical-align:bottom;
+}
+.hist thead th .dot{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:1px}
+.hist th:first-child{text-align:left;position:sticky;left:0;background:var(--bottle);z-index:1;padding-left:6px}
+.hist thead th:first-child{background:#0F3024;z-index:3}
+.hist tbody tr:last-child > *{border-bottom:0}
+.hist .b{display:block;font-weight:600}
+.hist .b i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--ink);background:var(--ivory);border-radius:999px;padding:1px 5px;margin-right:5px;vertical-align:1px}
+.hist .pl{display:block;font-size:12.5px;font-weight:600}
+.hist td.fd .b{color:var(--sage);font-weight:500}
+.hist td.outc{color:rgba(156,185,170,.55);font-size:13px}
+.hist td.potc{font-weight:700;color:var(--ivory)}
+.hist .win{display:block;font-size:12.5px;font-weight:600;color:var(--chalk)}
+.hist .win em{font-style:normal;color:var(--sage);font-weight:500}
+@media (max-width:420px){.hist{font-size:13.5px}.hist th,.hist td{padding:9px 5px}.hist th:first-child{padding-left:4px}.hn{min-width:34px;padding:0 6px}}
+.hn{
+  min-width:38px;min-height:34px;padding:0 8px;border-radius:10px;border:1px solid var(--line);
+  font:800 18px/1 var(--display);color:var(--ivory);background:rgba(17,52,38,.7);
+}
+.hn:hover{background:var(--baize-hi)}
+.note{margin:10px 0 0;color:var(--sage);font-size:13.5px}
+
+/* ---------- modal ---------- */
+.modal-back{
+  position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(3,14,9,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  animation:fade .15s ease-out;
+}
+@keyframes fade{from{opacity:0}}
+.sheet{
+  width:100%;max-width:540px;max-height:90vh;max-height:90dvh;overflow:auto;overscroll-behavior:contain;
+  background:var(--baize);border:1px solid var(--line);border-bottom:0;border-radius:26px 26px 0 0;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -10px 40px rgba(0,0,0,.4);animation:rise .2s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes rise{from{transform:translateY(24px);opacity:.6}}
+@media (min-width:640px){
+  .modal-back{align-items:center;padding:24px}
+  .sheet{border-radius:26px;border-bottom:1px solid var(--line);padding-bottom:20px}
+}
+.sheet:focus{outline:none}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.sheet-head h2{margin:0;font:900 30px/1.05 var(--display);color:var(--ivory)}
+.sheet-body p{margin:0 0 12px}
+.sheet-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
+.sheet-actions .btn-primary{width:auto;flex:1 1 180px;min-height:50px}
+.sheet-actions .btn-ghost{min-height:50px;border-radius:14px;flex:0 1 auto}
+.sheet-actions .btn-danger{margin-right:auto}
+.sh{margin:18px 0 4px;font-size:16px;font-weight:700}
+.sh:first-child{margin-top:4px}
+.muted{color:var(--sage);font-size:14px}
+.field{
+  width:100%;min-height:46px;padding:0 12px;border-radius:12px;
+  background:var(--bottle);border:1px solid var(--line);color:var(--chalk);font-size:16px;
+}
+.field:focus{outline:none;border-color:var(--ivory)}
+textarea.field{padding:12px;min-height:200px;font-size:14px;line-height:1.5}
+.set-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.set-row .dot{width:16px;height:16px}
+.set-blinds{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.set-blinds label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--sage)}
+.money-field{display:flex;align-items:center;gap:6px;padding-left:12px;border-radius:12px;background:var(--bottle);border:1px solid var(--line);color:var(--sage)}
+.money-field:focus-within{border-color:var(--ivory)}
+.money-field input{border:0;background:none;padding-left:0}
+.err{color:var(--down);font-size:14px;margin:12px 0 0;min-height:1em}
+.err:empty{display:none}
+.edit-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.edit-row .pname{flex:0 1 auto;font-size:16px}
+.edit-row .amt{width:118px;margin-left:auto}
+.edit-pot{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px}
+.edit-pot strong{font:900 30px/1 var(--display);color:var(--ivory)}
+.sess{padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.sess:last-child{border-bottom:0}
+.sess-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sess-date{font-weight:600}
+.sess-nets{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:14.5px}
+.sess-nets span{display:inline-flex;align-items:center;gap:6px}
+.alltime{display:grid;gap:2px;margin-bottom:6px}
+.alltime div{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.alltime div:last-child{border-bottom:0}
+.alltime strong{font:900 26px/1 var(--display);font-variant-numeric:tabular-nums}
+.alltime span{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:200;
+  transform:translate(-50%, calc(100% + 40px));
+  width:max-content;max-width:calc(100vw - 32px);
+  display:flex;align-items:center;gap:14px;padding:12px 12px 12px 18px;border-radius:16px;
+  background:var(--ivory);color:var(--ink);font-weight:500;font-size:15px;
+  box-shadow:0 14px 34px rgba(0,0,0,.45);transition:transform .25s cubic-bezier(.2,.8,.2,1);
+}
+.toast:not(.show){visibility:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1), visibility 0s .25s}
+.toast.show{transform:translate(-50%,0)}
+.toast-act{min-height:36px;padding:0 12px;border-radius:10px;background:var(--ink);color:var(--ivory);font-weight:600;flex:none}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<noscript><p style="padding:20px">Flat 1 Poker needs JavaScript turned on to run.</p></noscript>
+
+<header class="top">
+  <h1 class="wordmark">FLAT 1 POKER</h1>
+  <div class="top-actions">
+    <div class="dd">
+      <button type="button" class="btn-ghost" id="sitout-btn" data-dd aria-haspopup="menu" aria-expanded="false" aria-controls="sitout-menu">
+        Sit out <span class="count" id="sitout-count"></span>
+        <svg viewBox="0 0 12 8" aria-hidden="true" style="width:12px;height:8px"><path d="M1 1.5 6 6.5 11 1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="dd-menu" id="sitout-menu" role="menu" aria-label="Sit out" hidden></div>
+    </div>
+    <div class="dd">
+      <button type="button" class="icon-btn" id="menu-btn" data-dd aria-haspopup="menu" aria-expanded="false" aria-controls="main-menu" aria-label="More options">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>
+      </button>
+      <div class="dd-menu" id="main-menu" role="menu" aria-label="More options" hidden></div>
+    </div>
+  </div>
+  <p class="meta" id="meta"></p>
+</header>
+
+<main class="layout">
+  <div class="col col-play">
+    <section class="table-area" id="table" aria-label="Table"></section>
+    <section class="panel-hand" id="hand" aria-labelledby="hand-title"></section>
+  </div>
+  <div class="col col-ledger">
+    <section class="ledger" id="owes" aria-labelledby="owes-title"></section>
+    <section class="ledger" id="standings" aria-labelledby="standings-title"></section>
+    <section class="ledger" id="history" aria-labelledby="history-title"></section>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="restore-file" accept="application/json,.json" hidden>
+
+<script>
+(function () {
+'use strict';
+
+/* =========================================================
+   Constants and helpers
+   ========================================================= */
+var KEY = 'flat1poker:v1';
+var PALETTE = { red: '#E5533D', blue: '#4C8DF0', amber: '#F0B43C' };
+var QUICK = [10, 20, 50, 100, 500];
+var REDUCE_MOTION = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+var WAKE_SUPPORTED = 'wakeLock' in navigator;
+
+var ICON_UNDO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+var ICON_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var ICON_CLOSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+var ICON_UP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var ICON_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function $(s, r) { return (r || document).querySelector(s); }
+function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function sameIds(a, b) { return a.length === b.length && a.every(function (x) { return b.indexOf(x) > -1; }); }
+function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+/* Money is always stored as whole pence (integers). */
+function pounds(p) {
+  p = Math.round(p); var a = Math.abs(p);
+  return Math.floor(a / 100) + '.' + String(a % 100).padStart(2, '0');
+}
+function fmt(p) { return (p < 0 ? '\u2212' : '') + '\u00A3' + pounds(p); }
+function fmtS(p) { return p > 0 ? '+' + fmt(p) : fmt(p); }
+function short(p) { return p < 100 ? p + 'p' : '\u00A3' + (p % 100 ? pounds(p) : String(p / 100)); }
+function tone(p) { return p > 0 ? 'up' : p < 0 ? 'down' : 'even'; }
+function parseMoney(s) {
+  if (s == null) return null;
+  s = String(s).trim().toLowerCase().replace(/[\u00A3,\s]/g, '');
+  if (s === '') return 0;
+  var m = s.match(/^(\d+)p$/);
+  if (m) return parseInt(m[1], 10);
+  if (!/^\d*\.?\d*$/.test(s) || s === '.') return null;
+  var v = Math.round(parseFloat(s) * 100);
+  return isFinite(v) ? v : null;
+}
+function timeStr(ts) {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(' ', '').toLowerCase();
+}
+function dateStr(ts) {
+  return new Date(ts).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
+function isoDate(ts) {
+  var d = new Date(ts);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+/* =========================================================
+   State
+   ========================================================= */
+function defaultPlayers() {
+  return [
+    { id: 'ad', name: 'AD', color: 'red' },
+    { id: 'ollie', name: 'Ollie', color: 'blue' },
+    { id: 'owen', name: 'Owen', color: 'amber' }
+  ];
+}
+function freshState() {
+  return {
+    v: 1,
+    players: defaultPlayers(),   // seat order, clockwise
+    sb: 10, bb: 20,              // pence
+    out: {},                     // id -> true when sitting out
+    startDealer: 'ad',
+    dealerOverride: null,
+    sessionStart: Date.now(),
+    hands: [],
+    draft: null,
+    archive: [],
+    owesView: 'session'
+  };
+}
+function validHand(h) {
+  return h && typeof h === 'object' && Array.isArray(h.players) && h.players.length >= 2 &&
+    h.bets && typeof h.bets === 'object' && h.net && typeof h.net === 'object' &&
+    Array.isArray(h.winners) && h.winners.length > 0 && Number.isFinite(h.pot) && typeof h.button === 'string';
+}
+function sanitize(o) {
+  var s = freshState();
+  if (!o || typeof o !== 'object') return s;
+  if (Array.isArray(o.players) && o.players.length === 3 &&
+      o.players.every(function (p) { return p && typeof p.id === 'string' && typeof p.name === 'string'; })) {
+    var seen = {};
+    var okIds = o.players.every(function (p) { if (seen[p.id]) return false; seen[p.id] = 1; return true; });
+    if (okIds) {
+      s.players = o.players.map(function (p, i) {
+        return { id: p.id, name: (p.name.trim() || p.id).slice(0, 14), color: PALETTE[p.color] ? p.color : ['red', 'blue', 'amber'][i] };
+      });
+    }
+  }
+  var ids = s.players.map(function (p) { return p.id; });
+  if (Number.isInteger(o.sb) && o.sb > 0) s.sb = o.sb;
+  if (Number.isInteger(o.bb) && o.bb > 0) s.bb = o.bb;
+  if (s.bb < s.sb) s.bb = s.sb;
+  if (o.out && typeof o.out === 'object') ids.forEach(function (id) { if (o.out[id]) s.out[id] = true; });
+  if (ids.filter(function (id) { return !s.out[id]; }).length < 2) s.out = {};
+  s.startDealer = ids.indexOf(o.startDealer) > -1 ? o.startDealer : ids[0];
+  s.dealerOverride = ids.indexOf(o.dealerOverride) > -1 ? o.dealerOverride : null;
+  if (Number.isFinite(o.sessionStart)) s.sessionStart = o.sessionStart;
+  if (Array.isArray(o.hands)) s.hands = o.hands.filter(validHand);
+  if (o.draft && typeof o.draft === 'object' && o.draft.bets && typeof o.draft.bets === 'object') {
+    s.draft = {
+      key: String(o.draft.key || ''),
+      bets: o.draft.bets,
+      folded: (o.draft.folded && typeof o.draft.folded === 'object') ? o.draft.folded : {},
+      winners: Array.isArray(o.draft.winners) ? o.draft.winners : [],
+      split: !!o.draft.split,
+      hist: (o.draft.hist && typeof o.draft.hist === 'object') ? o.draft.hist : {},
+      touched: !!o.draft.touched
+    };
+  }
+  if (Array.isArray(o.archive)) {
+    s.archive = o.archive.filter(function (a) { return a && a.net && typeof a.net === 'object' && Number.isFinite(a.start); });
+  }
+  if (o.owesView === 'all') s.owesView = 'all';
+  return s;
+}
+
+var storageWarned = false;
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    return raw ? sanitize(JSON.parse(raw)) : freshState();
+  } catch (e) { return freshState(); }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) {
+    if (!storageWarned) {
+      storageWarned = true;
+      toast('This browser is blocking storage, so hands won\u2019t be kept if the page closes.');
+    }
+  }
+}
+
+var S = load();
+
+/* =========================================================
+   Players, seats and blinds
+   ========================================================= */
+function order() { return S.players.map(function (p) { return p.id; }); }
+function player(id) { return S.players.find(function (p) { return p.id === id; }) || { id: id, name: id, color: 'red' }; }
+function nm(id) { return esc(player(id).name); }
+function rawName(id) { return player(id).name; }
+function col(id) { return PALETTE[player(id).color] || '#999'; }
+function isIn(id) { return !S.out[id]; }
+
+/* Next seated (not sitting out) player clockwise after id. */
+function nextIn(id) {
+  var o = order(), i = o.indexOf(id);
+  for (var k = 1; k <= o.length; k++) {
+    var c = o[(i + k + o.length) % o.length];
+    if (isIn(c)) return c;
+  }
+  return null;
+}
+function fromIn(id) { return (order().indexOf(id) > -1 && isIn(id)) ? id : nextIn(id); }
+function naturalButton() {
+  var last = S.hands[S.hands.length - 1];
+  return last ? nextIn(last.button) : fromIn(S.startDealer);
+}
+/* Works out dealer, small blind and big blind for the next hand.
+   The button moves one seat clockwise each hand, skipping anyone sitting out.
+   Heads-up, the dealer posts the small blind. */
+function positions() {
+  var active = order().filter(isIn);
+  if (active.length < 2) return { ok: false, active: active };
+  var button = S.dealerOverride ? fromIn(S.dealerOverride) : naturalButton();
+  var sb, bb;
+  if (active.length === 2) { sb = button; bb = nextIn(button); }
+  else { sb = nextIn(button); bb = nextIn(sb); }
+  return { ok: true, active: active, button: button, sb: sb, bb: bb, manual: !!S.dealerOverride };
+}
+function posKey(P) { return [P.button, P.sb, P.bb, P.active.join(','), S.sb, S.bb].join('|'); }
+function minBet(id, P) { return id === P.bb ? S.bb : id === P.sb ? S.sb : 0; }
+function posLabel(id, P) { return id === P.bb ? 'BB' : id === P.sb ? 'SB' : ''; }
+
+/* =========================================================
+   The hand being entered (draft)
+   ========================================================= */
+function newDraft(P) {
+  var bets = {};
+  P.active.forEach(function (id) { bets[id] = minBet(id, P); });
+  return { key: posKey(P), bets: bets, folded: {}, winners: [], split: false, hist: {}, touched: false };
+}
+function ensureDraft(P) {
+  if (!P.ok) return null;
+  var d = S.draft;
+  if (d && d.key === posKey(P)) return d;
+  if (d && d.touched) toast('Seats or blinds changed, so the hand in progress was reset.');
+  S.draft = newDraft(P);
+  save();
+  return S.draft;
+}
+/* Clockwise from the seat left of the button; the button comes last.
+   Used to hand out odd pennies in a split pot, as in a real game. */
+function seatsFrom(button) {
+  var o = order(), i = o.indexOf(button);
+  return o.map(function (_, k) { return o[(i + 1 + k + o.length) % o.length]; });
+}
+function distribute(pot, winners, button) {
+  var seq = seatsFrom(button).filter(function (id) { return winners.indexOf(id) > -1; });
+  winners.forEach(function (w) { if (seq.indexOf(w) < 0) seq.push(w); });
+  var base = Math.floor(pot / seq.length), rem = pot - base * seq.length, out = {};
+  seq.forEach(function (id) { out[id] = base + (rem > 0 ? 1 : 0); if (rem > 0) rem--; });
+  return out;
+}
+function evalDraft(P, d) {
+  var pot = P.active.reduce(function (a, id) { return a + (d.bets[id] || 0); }, 0);
+  var inHand = P.active.filter(function (id) { return !d.folded[id]; });
+  var winners = d.winners.filter(function (id) { return inHand.indexOf(id) > -1; });
+  var shares = winners.length ? distribute(pot, winners, P.button) : {};
+  var net = {};
+  P.active.forEach(function (id) { net[id] = (shares[id] || 0) - (d.bets[id] || 0); });
+  var max = Math.max.apply(null, [0].concat(P.active.map(function (id) { return d.bets[id] || 0; })));
+  var live = {};
+  inHand.forEach(function (id) { live[d.bets[id] || 0] = 1; });
+  var mismatch = inHand.length > 1 && Object.keys(live).length > 1;
+  return { pot: pot, inHand: inHand, winners: winners, shares: shares, net: net, max: max, mismatch: mismatch, ok: winners.length > 0 && pot > 0 };
+}
+function setBet(id, v, push) {
+  var P = positions(), d = S.draft;
+  if (!P.ok || !d) return;
+  v = Math.max(minBet(id, P), Math.min(Math.round(v), 10000000));
+  var cur = d.bets[id] || 0;
+  if (v === cur) return;
+  if (push !== false) {
+    d.hist[id] = d.hist[id] || [];
+    d.hist[id].push(cur);
+    if (d.hist[id].length > 40) d.hist[id].shift();
+  }
+  d.bets[id] = v;
+  d.touched = true;
+  save();
+}
+
+/* =========================================================
+   Stats and settling up
+   ========================================================= */
+function statsFor(hands) {
+  var per = {};
+  S.players.forEach(function (p) { per[p.id] = { net: 0, played: 0, won: 0, wagered: 0, best: 0 }; });
+  var biggest = 0, volume = 0;
+  hands.forEach(function (h) {
+    biggest = Math.max(biggest, h.pot); volume += h.pot;
+    h.players.forEach(function (id) {
+      var x = per[id]; if (!x) return;
+      x.played++; x.wagered += h.bets[id] || 0; x.net += h.net[id] || 0;
+      if (h.winners.indexOf(id) > -1) x.won++;
+      x.best = Math.max(x.best, h.net[id] || 0);
+    });
+  });
+  return { per: per, biggest: biggest, volume: volume, count: hands.length };
+}
+function sessionNet() {
+  var per = statsFor(S.hands).per, net = {};
+  order().forEach(function (id) { net[id] = per[id].net; });
+  return net;
+}
+function allTimeNet() {
+  var net = sessionNet();
+  S.archive.forEach(function (a) { order().forEach(function (id) { net[id] += a.net[id] || 0; }); });
+  return net;
+}
+function allTimeHands() { return S.archive.reduce(function (a, s) { return a + (s.hands || 0); }, S.hands.length); }
+/* Fewest payments: biggest loser pays biggest winner first. */
+function settle(net) {
+  var cred = [], debt = [];
+  Object.keys(net).forEach(function (id) {
+    var v = net[id];
+    if (v > 0) cred.push({ id: id, v: v }); else if (v < 0) debt.push({ id: id, v: -v });
+  });
+  cred.sort(function (a, b) { return b.v - a.v; });
+  debt.sort(function (a, b) { return b.v - a.v; });
+  var tx = [], i = 0, j = 0;
+  while (i < debt.length && j < cred.length) {
+    var amt = Math.min(debt[i].v, cred[j].v);
+    if (amt > 0) tx.push({ from: debt[i].id, to: cred[j].id, amt: amt });
+    debt[i].v -= amt; cred[j].v -= amt;
+    if (debt[i].v === 0) i++;
+    if (cred[j].v === 0) j++;
+  }
+  return tx;
+}
+
+/* =========================================================
+   Rendering
+   ========================================================= */
+var busy = false;
+var tableBuilt = false;
+
+function render() {
+  var P = positions();
+  var d = P.ok ? ensureDraft(P) : null;
+  renderMeta();
+  renderSitout();
+  renderMenu();
+  renderTable(P, d);
+  renderHand(P, d);
+  renderOwes();
+  renderStandings();
+  renderHistory();
+}
+
+function renderMeta() {
+  var parts = ['<span>Blinds ' + fmt(S.sb) + ' / ' + fmt(S.bb) + '</span>'];
+  if (S.hands.length) parts.push('<span>Since ' + timeStr(S.hands[0].ts) + '</span>');
+  $('#meta').innerHTML = parts.join('');
+}
+
+function renderSitout() {
+  var outCount = order().filter(function (id) { return S.out[id]; }).length;
+  $('#sitout-count').textContent = outCount ? String(outCount) : '';
+  var menu = $('#sitout-menu');
+  var focusedId = document.activeElement && menu.contains(document.activeElement) ? document.activeElement.getAttribute('data-id') : null;
+  menu.innerHTML =
+    '<p class="dd-title">Who\u2019s sitting out?</p>' +
+    S.players.map(function (p) {
+      var out = !!S.out[p.id];
+      return '<button type="button" class="mi" role="menuitemcheckbox" aria-checked="' + out + '" data-action="toggle-out" data-id="' + p.id + '">' +
+        '<span class="dot" style="--c:' + col(p.id) + '"></span>' +
+        '<span class="mi-name">' + nm(p.id) + '</span>' +
+        '<span class="mi-state">' + (out ? 'Sitting out' : 'Playing') + '</span>' +
+        '<span class="tick" aria-hidden="true"></span></button>';
+    }).join('') +
+    '<p class="dd-note">Blinds skip anyone sitting out, then carry on in the normal order when they\u2019re back.</p>';
+  if (focusedId) { var b = $('[data-id="' + focusedId + '"]', menu); if (b) b.focus(); }
+}
+
+function renderMenu() {
+  var items = [
+    ['settings', 'Settings'],
+    ['sessions', 'Past sessions' + (S.archive.length ? ' (' + S.archive.length + ')' : '')],
+    ['share', 'Share summary'],
+    ['export-csv', 'Export hands (CSV)'],
+    ['backup', 'Save backup file'],
+    ['restore', 'Restore from backup']
+  ];
+  if (WAKE_SUPPORTED) items.push(['wake', wakeLock ? 'Let screen sleep' : 'Keep screen on']);
+  var html = items.map(function (it) {
+    return '<button type="button" class="mi" role="menuitem" data-action="' + it[0] + '">' + it[1] + '</button>';
+  }).join('');
+  html += '<div class="mi-sep" role="separator"></div>' +
+    '<button type="button" class="mi danger" role="menuitem" data-action="new-session">Start new session</button>';
+  $('#main-menu').innerHTML = html;
+}
+
+function buildTable() {
+  var seats = '', bets = '';
+  [0, 1, 2].forEach(function (i) {
+    bets += '<div class="bet" data-seat="' + i + '" aria-hidden="true"><span class="stack"></span><span class="bet-amt"></span></div>';
+    seats += '<div class="seat" data-seat="' + i + '"><div class="chip"><span class="chip-txt"></span><span class="s-badge"></span></div>' +
+      '<div class="plaque"><span class="s-name"></span><span class="s-pl"></span></div></div>';
+  });
+  $('#table').innerHTML =
+    '<div class="felt-wrap" id="felt">' +
+      '<div class="felt" aria-hidden="true"></div>' +
+      '<div class="pot-center" aria-hidden="true"><span class="pot-label">Pot</span><span class="pot-amt" id="t-pot">\u00A30.00</span><span class="pot-hand" id="t-hand"></span></div>' +
+      bets + seats +
+      '<div class="puck" id="puck" data-seat="0" aria-hidden="true">D</div>' +
+    '</div>' +
+    '<p class="sr-only" id="table-sr"></p>';
+  tableBuilt = true;
+}
+
+function renderTable(P, d) {
+  if (!tableBuilt) buildTable();
+  var net = sessionNet();
+  S.players.forEach(function (p, i) {
+    var seat = $('.seat[data-seat="' + i + '"]');
+    var out = !!S.out[p.id];
+    seat.style.setProperty('--c', col(p.id));
+    $('.chip', seat).style.setProperty('--c', col(p.id));
+    seat.setAttribute('data-out', String(out));
+    $('.chip-txt', seat).textContent = p.name.slice(0, 2).toUpperCase();
+    $('.s-badge', seat).textContent = out ? 'Out' : (P.ok ? posLabel(p.id, P) : '');
+    $('.s-name', seat).textContent = p.name;
+    var pl = $('.s-pl', seat);
+    pl.className = 's-pl ' + (out ? '' : tone(net[p.id]));
+    pl.textContent = out ? 'Sitting out' : fmtS(net[p.id]);
+  });
+  var puck = $('#puck');
+  if (P.ok) {
+    puck.hidden = false;
+    puck.setAttribute('data-seat', String(order().indexOf(P.button)));
+  } else {
+    puck.hidden = true;
+  }
+  $('#t-hand').textContent = P.ok ? 'Hand ' + (S.hands.length + 1) : 'Waiting for players';
+  updateTableLive(P, d);
+  var sr = $('#table-sr');
+  sr.textContent = P.ok
+    ? 'Hand ' + (S.hands.length + 1) + '. Dealer ' + rawName(P.button) + ', small blind ' + rawName(P.sb) + ', big blind ' + rawName(P.bb) + '.'
+    : 'Not enough players in to deal a hand.';
+}
+
+function updateTableLive(P, d) {
+  var pot = 0;
+  S.players.forEach(function (p, i) {
+    var m = $('.bet[data-seat="' + i + '"]');
+    var amt = (P.ok && d && P.active.indexOf(p.id) > -1) ? (d.bets[p.id] || 0) : 0;
+    pot += amt;
+    m.style.setProperty('--c', col(p.id));
+    m.classList.toggle('show', amt > 0);
+    m.classList.toggle('folded', !!(d && d.folded[p.id]));
+    $('.bet-amt', m).textContent = amt > 0 ? fmt(amt) : '';
+  });
+  $('#t-pot').textContent = fmt(pot);
+}
+
+function rowHTML(id, P, d, E) {
+  var folded = !!d.folded[id];
+  var pos = posLabel(id, P);
+  var name = nm(id);
+  var dealer = id === P.button ? '<span class="dmark" title="Dealer" aria-label="Dealer">D</span>' : '';
+  return '<div class="prow' + (folded ? ' is-folded' : '') + '" data-id="' + id + '">' +
+    '<div class="prow-top">' +
+      '<span class="dot" style="--c:' + col(id) + '"></span>' +
+      '<span class="pname">' + name + '</span>' + dealer +
+      (pos ? '<span class="pos">' + pos + '</span>' : '') +
+      '<button type="button" class="fold" data-action="fold" data-id="' + id + '" aria-pressed="' + folded + '">' + (folded ? 'Folded' : 'Fold') + '</button>' +
+      '<label class="amt"><span aria-hidden="true">\u00A3</span>' +
+        '<input class="amt-input" data-id="' + id + '" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" spellcheck="false" value="' + pounds(d.bets[id] || 0) + '" aria-label="' + name + ' total put in this hand"></label>' +
+    '</div>' +
+    '<div class="quick">' +
+      '<button type="button" class="q q-call" data-action="call" data-id="' + id + '">Call</button>' +
+      QUICK.map(function (v) {
+        return '<button type="button" class="q" data-action="add" data-id="' + id + '" data-amt="' + v + '" aria-label="Add ' + fmt(v) + ' for ' + name + '">+' + short(v) + '</button>';
+      }).join('') +
+      '<button type="button" class="q q-undo" data-action="undo-bet" data-id="' + id + '" aria-label="Undo last change for ' + name + '">' + ICON_UNDO + '</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function winChipHTML(id, d) {
+  var folded = !!d.folded[id];
+  var sel = !folded && d.winners.indexOf(id) > -1;
+  return '<button type="button" class="wchip" data-action="win" data-id="' + id + '" style="--c:' + col(id) + '" aria-pressed="' + sel + '"' + (folded ? ' disabled aria-label="' + nm(id) + ' folded"' : '') + '>' +
+    '<span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</button>';
+}
+
+function renderHand(P, d) {
+  var el = $('#hand');
+  var n = S.hands.length + 1;
+  if (!P.ok) {
+    var who = P.active.length ? nm(P.active[0]) + ' is the only one in.' : 'Everyone is sitting out.';
+    el.innerHTML = '<div class="hand-head"><h2 class="hand-title" id="hand-title">Hand ' + n + '</h2></div>' +
+      '<div class="empty-hand"><p>' + who + ' Bring someone back from Sit out to deal the next hand.</p>' +
+      '<button type="button" class="btn-ghost" data-action="open-sitout">Open sit out</button></div>';
+    return;
+  }
+  var E = evalDraft(P, d);
+  var outIds = order().filter(function (id) { return S.out[id]; });
+  var headsUp = P.active.length === 2;
+  el.innerHTML =
+    '<div class="hand-head">' +
+      '<h2 class="hand-title" id="hand-title">Hand ' + n + '</h2>' +
+      '<div class="dealer-pick"><label for="dealer-select">Dealer</label>' +
+        '<select id="dealer-select">' + P.active.map(function (id) {
+          return '<option value="' + id + '"' + (id === P.button ? ' selected' : '') + '>' + nm(id) + '</option>';
+        }).join('') + '</select>' +
+      '</div>' +
+    '</div>' +
+    '<p class="blind-line">' + nm(P.sb) + ' posts ' + fmt(S.sb) + ', ' + nm(P.bb) + ' posts ' + fmt(S.bb) + '.' +
+      (headsUp ? ' Heads-up, so the dealer is small blind.' : '') +
+      (P.manual ? ' <button type="button" class="btn-text sm" data-action="auto-dealer">Back to normal rotation</button>' : '') +
+    '</p>' +
+    '<div class="rows">' + P.active.map(function (id) { return rowHTML(id, P, d, E); }).join('') + '</div>' +
+    (outIds.length ? '<p class="out-line">Sitting out: ' + outIds.map(nm).join(', ') + '</p>' : '') +
+    '<div class="hand-foot">' +
+      '<div class="pot-line"><span>Pot</span><strong id="h-pot">' + fmt(E.pot) + '</strong></div>' +
+      '<div class="winner-head"><span id="winner-label">Who won?</span>' +
+        '<label class="split"><input type="checkbox" id="split-toggle"' + (d.split ? ' checked' : '') + '><span>Split pot</span></label></div>' +
+      '<div class="winner-chips" role="group" aria-labelledby="winner-label">' + P.active.map(function (id) { return winChipHTML(id, d); }).join('') + '</div>' +
+      '<div class="preview" id="h-preview"></div>' +
+      '<p class="hint" id="h-hint" aria-live="polite"></p>' +
+      '<button type="button" class="btn-primary" id="record-btn" data-action="record">Record hand ' + n + '</button>' +
+      '<button type="button" class="btn-text" data-action="clear-hand">Clear this hand</button>' +
+    '</div>';
+  renderLive(P, d, E);
+}
+
+/* Updates everything that changes while amounts are typed, without
+   rebuilding inputs (so the keyboard stays open). */
+function renderLive(P, d, E) {
+  P = P || positions();
+  if (!P.ok) return;
+  d = d || S.draft;
+  if (!d) return;
+  E = E || evalDraft(P, d);
+  var hp = $('#h-pot'); if (hp) hp.textContent = fmt(E.pot);
+  P.active.forEach(function (id) {
+    var b = $('#hand [data-action="call"][data-id="' + id + '"]');
+    if (b) {
+      var tc = E.max - (d.bets[id] || 0);
+      b.disabled = tc <= 0;
+      b.innerHTML = tc > 0 ? 'Call<small>+' + short(tc) + '</small>' : 'Call';
+      b.setAttribute('aria-label', tc > 0 ? nm(id) + ' calls ' + fmt(tc) + ' more' : nm(id) + ' has matched the highest bet');
+    }
+    var inp = $('#hand .amt-input[data-id="' + id + '"]');
+    if (inp && inp !== document.activeElement) inp.value = pounds(d.bets[id] || 0);
+  });
+  updateTableLive(P, d);
+  var pv = $('#h-preview');
+  if (pv) {
+    pv.innerHTML = E.winners.length ? P.active.map(function (id) {
+      return '<span class="pv"><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + ' <b class="' + tone(E.net[id]) + '">' + fmtS(E.net[id]) + '</b></span>';
+    }).join('') : '';
+  }
+  var hint = $('#h-hint');
+  if (hint) {
+    var msg = '', warn = false;
+    if (!E.winners.length) {
+      msg = 'Enter what everyone put in, then tap who won.';
+    } else {
+      if (E.winners.length > 1) {
+        var shareVals = E.winners.map(function (w) { return E.shares[w]; });
+        var even = shareVals.every(function (v) { return v === shareVals[0]; });
+        msg = E.winners.map(nm).join(' and ') + ' split ' + fmt(E.pot) + (even
+          ? ', ' + short(shareVals[0]) + ' each.'
+          : ': ' + E.winners.map(function (w) { return nm(w) + ' ' + short(E.shares[w]); }).join(', ') + '. The odd penny goes to whoever sits nearest the dealer\u2019s left.');
+      } else {
+        msg = nm(E.winners[0]) + ' wins ' + fmt(E.pot) + '.';
+      }
+      if (E.mismatch) { msg += ' Players still in put in different amounts, so check the totals.'; warn = true; }
+    }
+    hint.innerHTML = msg;
+    hint.classList.toggle('warn', warn);
+  }
+  var rb = $('#record-btn'); if (rb) rb.disabled = !E.ok || busy;
+}
+
+function renderOwes() {
+  var el = $('#owes');
+  var view = S.archive.length ? S.owesView : 'session';
+  var net = view === 'all' ? allTimeNet() : sessionNet();
+  var tx = settle(net);
+  var seg = S.archive.length
+    ? '<div class="seg" role="group" aria-label="Range">' +
+        '<button type="button" data-action="owes-view" data-view="session" aria-pressed="' + (view === 'session') + '">This session</button>' +
+        '<button type="button" data-action="owes-view" data-view="all" aria-pressed="' + (view === 'all') + '">All time</button></div>'
+    : '';
+  var anyHands = view === 'all' ? allTimeHands() > 0 : S.hands.length > 0;
+  var body;
+  if (tx.length) {
+    body = '<ul class="owes">' + tx.map(function (t) {
+      return '<li class="owe">' +
+        '<span class="owe-pair" aria-hidden="true"><span class="mini-chip" style="--c:' + col(t.from) + '"></span>' + ICON_ARROW + '<span class="mini-chip" style="--c:' + col(t.to) + '"></span></span>' +
+        '<span class="owe-text"><b>' + nm(t.from) + '</b> pays <b>' + nm(t.to) + '</b></span>' +
+        '<span class="owe-amt">' + fmt(t.amt) + '</span></li>';
+    }).join('') + '</ul>';
+  } else {
+    body = '<p class="empty">' + (anyHands ? 'All square. Nobody owes anything.' : 'Nobody owes anything yet. Payments show up here as hands are recorded.') + '</p>';
+  }
+  el.innerHTML =
+    '<div class="sec-head"><h2 id="owes-title">Who owes who</h2>' + seg + '</div>' + body +
+    (anyHands ? '<div class="sec-foot"><button type="button" class="btn-ghost sm" data-action="share">Share summary</button></div>' : '');
+}
+
+function renderStandings() {
+  var el = $('#standings');
+  var st = statsFor(S.hands);
+  var ids = order().slice().sort(function (a, b) { return st.per[b].net - st.per[a].net; });
+  var sub = st.count
+    ? plural(st.count, 'hand') + ' played. Biggest pot ' + fmt(st.biggest) + ', ' + fmt(st.volume) + ' through the pot in total.'
+    : 'No hands yet.';
+  el.innerHTML =
+    '<div class="sec-head"><h2 id="standings-title">Standings</h2><p class="sec-sub">' + sub + '</p></div>' +
+    '<ol class="stand">' + ids.map(function (id) {
+      var x = st.per[id];
+      var line = x.played
+        ? 'Won ' + x.won + ' of ' + plural(x.played, 'hand') + ', ' + fmt(x.wagered) + ' put in'
+        : (S.out[id] ? 'Sitting out' : 'No hands yet');
+      return '<li><span class="mini-chip" style="--c:' + col(id) + ';width:34px;height:34px"></span>' +
+        '<div class="st-main"><span class="st-name">' + nm(id) + '</span><span class="st-sub">' + line + '</span></div>' +
+        '<span class="st-net ' + tone(x.net) + '">' + fmtS(x.net) + '</span></li>';
+    }).join('') + '</ol>' +
+    '<div class="chart" id="chart"></div>';
+  renderChart();
+}
+
+function renderChart() {
+  var el = $('#chart');
+  if (!el) return;
+  var H = S.hands;
+  if (H.length < 2) { el.innerHTML = ''; return; }
+  var W = Math.max(280, Math.round(el.clientWidth || 340));
+  var Ht = 190, padL = 50, padR = 12, padT = 12, padB = 26;
+  var ids = order();
+  var series = {}, min = 0, max = 0;
+  ids.forEach(function (id) { series[id] = [0]; });
+  H.forEach(function (h) {
+    ids.forEach(function (id) {
+      var arr = series[id];
+      var v = arr[arr.length - 1] + (h.net[id] || 0);
+      arr.push(v);
+      if (v < min) min = v; if (v > max) max = v;
+    });
+  });
+  if (max - min < 100) { max += 50; min -= 50; }
+  var span = max - min;
+  max += span * 0.06; min -= span * 0.06;
+  function x(i) { return padL + i * (W - padL - padR) / H.length; }
+  function y(v) { return padT + (max - v) * (Ht - padT - padB) / (max - min); }
+  var lines = ids.map(function (id) {
+    var pts = series[id].map(function (v, i) { return x(i).toFixed(1) + ',' + y(v).toFixed(1); }).join(' ');
+    var last = series[id][series[id].length - 1];
+    return '<polyline points="' + pts + '" fill="none" stroke="' + col(id) + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + x(H.length).toFixed(1) + '" cy="' + y(last).toFixed(1) + '" r="3.5" fill="' + col(id) + '"/>';
+  }).join('');
+  var tickMax = Math.max.apply(null, ids.map(function (id) { return Math.max.apply(null, series[id]); }));
+  var tickMin = Math.min.apply(null, ids.map(function (id) { return Math.min.apply(null, series[id]); }));
+  var labels = '';
+  [[tickMax, tickMax > 0], [0, true], [tickMin, tickMin < 0]].forEach(function (t) {
+    if (!t[1]) return;
+    if (t[0] !== 0 && Math.abs(y(t[0]) - y(0)) < 14) return;
+    labels += '<text x="' + (padL - 8) + '" y="' + (y(t[0]) + 4).toFixed(1) + '" text-anchor="end" fill="#9CB9AA" font-size="11.5" font-family="Archivo, Helvetica, Arial, sans-serif">' + (t[0] === 0 ? '\u00A30' : fmtS(t[0])) + '</text>';
+  });
+  var grid = '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(0).toFixed(1) + '" y2="' + y(0).toFixed(1) + '" stroke="rgba(238,241,232,.22)" stroke-dasharray="3 4"/>';
+  var xl = '<text x="' + padL + '" y="' + (Ht - 6) + '" fill="#9CB9AA" font-size="11.5" font-family="Archivo, Helvetica, Arial, sans-serif">Start</text>' +
+    '<text x="' + (W - padR) + '" y="' + (Ht - 6) + '" text-anchor="end" fill="#9CB9AA" font-size="11.5" font-family="Archivo, Helvetica, Arial, sans-serif">Hand ' + H.length + '</text>';
+  el.innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + Ht + '" width="' + W + '" height="' + Ht + '" role="img" aria-label="Running profit and loss for each player across ' + H.length + ' hands">' +
+      grid + labels + lines + xl + '</svg>' +
+    '<div class="chart-legend" aria-hidden="true">' + ids.map(function (id) {
+      return '<span><i style="--c:' + col(id) + '"></i>' + nm(id) + '</span>';
+    }).join('') + '</div>';
+}
+
+function renderHistory() {
+  var el = $('#history');
+  var H = S.hands;
+  var head = '<div class="sec-head"><h2 id="history-title">Hand history</h2>' +
+    (H.length ? '<button type="button" class="btn-ghost sm" data-action="undo-hand">' + ICON_UNDO + 'Undo last hand</button>' : '') + '</div>';
+  if (!H.length) {
+    el.innerHTML = head + '<p class="empty">No hands yet. Record the first one and it\u2019ll appear here, newest at the top.</p>';
+    return;
+  }
+  var ids = order();
+  var rows = [];
+  for (var i = H.length - 1; i >= 0; i--) {
+    var h = H[i], n = i + 1;
+    var cells = ids.map(function (id) {
+      if (h.players.indexOf(id) < 0) return '<td class="outc">Out</td>';
+      var pos = h.bbP === id ? 'BB' : h.sbP === id ? 'SB' : (h.button === id ? 'D' : '');
+      var nt = h.net[id] || 0;
+      var fd = h.folded && h.folded[id];
+      return '<td' + (fd ? ' class="fd"' : '') + '><span class="b">' + (pos ? '<i>' + pos + '</i>' : '') + fmt(h.bets[id] || 0) + '</span>' +
+        '<span class="pl ' + tone(nt) + '">' + fmtS(nt) + '</span></td>';
+    }).join('');
+    rows.push('<tr><th scope="row"><button type="button" class="hn" data-action="edit-hand" data-hid="' + h.id + '" aria-label="Edit hand ' + n + '">' + n + '</button></th>' +
+      cells +
+      '<td class="potc">' + fmt(h.pot) + '<span class="win">' + h.winners.map(nm).join(' & ') + (h.winners.length > 1 ? ' <em>split</em>' : '') + '</span></td></tr>');
+  }
+  el.innerHTML = head +
+    '<div class="table-scroll"><table class="hist">' +
+      '<thead><tr><th scope="col">Hand</th>' +
+        ids.map(function (id) { return '<th scope="col"><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</th>'; }).join('') +
+        '<th scope="col">Pot<br>winner</th></tr></thead>' +
+      '<tbody>' + rows.join('') + '</tbody></table></div>' +
+    '<p class="note">Each player shows what they put in, with their profit or loss underneath. The pot column shows who won it. Tap a hand number to edit or delete it.</p>' +
+    '<div class="sec-foot"><button type="button" class="btn-ghost sm" data-action="export-csv">Export hands (CSV)</button></div>';
+}
+
+/* =========================================================
+   Actions
+   ========================================================= */
+function toggleOut(id) {
+  if (!S.out[id]) {
+    var remaining = order().filter(function (x) { return isIn(x) && x !== id; }).length;
+    if (remaining < 2) { toast('At least two players need to be in to deal a hand.'); return; }
+    S.out[id] = true;
+  } else {
+    delete S.out[id];
+  }
+  save();
+  render();
+}
+
+function toggleFold(id) {
+  var P = positions(), d = S.draft;
+  if (!P.ok || !d) return;
+  if (!d.folded[id]) {
+    var left = P.active.filter(function (x) { return !d.folded[x] && x !== id; });
+    if (left.length < 1) { toast('Someone has to win the pot.'); return; }
+    d.folded[id] = true;
+    d.winners = d.winners.filter(function (w) { return w !== id; });
+    if (left.length === 1) { d.winners = [left[0]]; d.split = false; }
+  } else {
+    delete d.folded[id];
+  }
+  d.touched = true;
+  save();
+  render();
+}
+
+function pickWinner(id) {
+  var d = S.draft;
+  if (!d || d.folded[id]) return;
+  if (d.split) {
+    d.winners = d.winners.indexOf(id) > -1 ? d.winners.filter(function (w) { return w !== id; }) : d.winners.concat(id);
+  } else {
+    d.winners = (d.winners.length === 1 && d.winners[0] === id) ? [] : [id];
+  }
+  d.touched = true;
+  save();
+  render();
+}
+
+function onSplit(on) {
+  var d = S.draft; if (!d) return;
+  d.split = on;
+  if (!on && d.winners.length > 1) d.winners = [d.winners[0]];
+  d.touched = true;
+  save();
+  render();
+}
+
+function onDealer(v) {
+  S.dealerOverride = null;
+  var nat = positions();
+  S.dealerOverride = (nat.ok && nat.button === v) ? null : v;
+  save();
+  render();
+  toast(rawName(v) + ' is dealing this hand.');
+}
+
+function onAmtInput(inp) {
+  var d = S.draft, id = inp.getAttribute('data-id');
+  if (!d) return;
+  var v = parseMoney(inp.value);
+  if (v === null) return;
+  d.bets[id] = v;
+  d.touched = true;
+  renderLive();
+}
+
+function onAmtCommit(inp) {
+  var P = positions(), d = S.draft, id = inp.getAttribute('data-id');
+  if (!P.ok || !d || P.active.indexOf(id) < 0) return;
+  var prev = parseInt(inp.getAttribute('data-prev'), 10);
+  if (!Number.isFinite(prev)) prev = d.bets[id] || 0;
+  var v = parseMoney(inp.value);
+  if (v === null) v = prev;
+  var min = minBet(id, P);
+  if (v < min) {
+    v = min;
+    toast(rawName(id) + ' posted the ' + (id === P.bb ? 'big' : 'small') + ' blind, so it can\u2019t be less than ' + fmt(min) + '.');
+  }
+  d.bets[id] = prev;
+  setBet(id, v);
+  inp.setAttribute('data-prev', String(d.bets[id]));
+  inp.value = pounds(d.bets[id]);
+  save();
+  renderLive();
+}
+
+function commitFocusedAmount() {
+  var ae = document.activeElement;
+  if (ae && ae.classList && ae.classList.contains('amt-input')) { onAmtCommit(ae); ae.blur(); }
+}
+
+function record() {
+  if (busy) return;
+  commitFocusedAmount();
+  var P = positions();
+  if (!P.ok) return;
+  var d = ensureDraft(P);
+  var E = evalDraft(P, d);
+  if (!E.ok) { toast('Tap who won first.'); return; }
+  var n = S.hands.length + 1;
+  var bets = {}, folded = {};
+  P.active.forEach(function (id) { bets[id] = d.bets[id] || 0; if (d.folded[id]) folded[id] = true; });
+  var hand = {
+    id: uid(), ts: Date.now(),
+    button: P.button, sbP: P.sb, bbP: P.bb, sbAmt: S.sb, bbAmt: S.bb,
+    players: P.active.slice(), bets: bets, folded: folded,
+    winners: E.winners.slice(), pot: E.pot, net: E.net
+  };
+  busy = true;
+  var rb = $('#record-btn'); if (rb) rb.disabled = true;
+  var felt = $('#felt'), wait = 0;
+  if (felt && felt.getBoundingClientRect().top < -40) {
+    felt.scrollIntoView({ behavior: REDUCE_MOTION ? 'auto' : 'smooth', block: 'start' });
+    wait = REDUCE_MOTION ? 0 : 420;
+  }
+  setTimeout(function () { sweepChips(E.winners[0], finish); }, wait);
+  function finish() {
+    S.hands.push(hand);
+    S.dealerOverride = null;
+    S.draft = null;
+    save();
+    busy = false;
+    var puck = $('#puck'); if (puck && !REDUCE_MOTION) puck.classList.add('animate');
+    render();
+    var who = E.winners.map(rawName).join(' & ');
+    toast('Hand ' + n + ': ' + who + (E.winners.length > 1 ? ' split ' : ' won ') + fmt(E.pot) + '.', { action: 'Undo', onAction: undoLast });
+  }
+}
+
+/* Chips slide to the winner, then the dealer button moves on. */
+function sweepChips(winnerId, done) {
+  var seatIdx = order().indexOf(winnerId);
+  var target = $('.seat[data-seat="' + seatIdx + '"] .chip');
+  var markers = $$('.bet.show');
+  if (REDUCE_MOTION || !target || !markers.length) { done(); return; }
+  var tr = target.getBoundingClientRect();
+  var tx = tr.left + tr.width / 2, ty = tr.top + tr.height / 2;
+  markers.forEach(function (m) {
+    var r = m.getBoundingClientRect();
+    var dx = tx - (r.left + r.width / 2), dy = ty - (r.top + r.height / 2);
+    m.style.transition = 'transform .45s cubic-bezier(.5,0,.25,1), opacity .45s ease-in';
+    m.style.transform = 'translate(calc(-50% + ' + dx.toFixed(1) + 'px), calc(-50% + ' + dy.toFixed(1) + 'px)) scale(.55)';
+    m.style.opacity = '0';
+  });
+  setTimeout(function () {
+    markers.forEach(function (m) {
+      m.style.transition = 'none'; m.style.transform = ''; m.style.opacity = '';
+      void m.offsetWidth;
+      m.style.transition = '';
+    });
+    done();
+  }, 470);
+}
+
+function undoLast() {
+  var h = S.hands.pop();
+  if (!h) { toast('There are no hands to undo.'); return; }
+  var n = S.hands.length + 1;
+  S.dealerOverride = null;
+  var nat = positions();
+  if (nat.ok && nat.button !== h.button) S.dealerOverride = h.button;
+  var P = positions(), restored = false;
+  if (P.ok && P.button === h.button && P.sb === h.sbP && P.bb === h.bbP && sameIds(P.active, h.players) && S.sb === h.sbAmt && S.bb === h.bbAmt) {
+    var bets = {};
+    P.active.forEach(function (id) { bets[id] = h.bets[id] || 0; });
+    S.draft = { key: posKey(P), bets: bets, folded: Object.assign({}, h.folded || {}), winners: h.winners.slice(), split: h.winners.length > 1, hist: {}, touched: true };
+    restored = true;
+  } else {
+    S.draft = null;
+  }
+  save();
+  var puck = $('#puck'); if (puck && !REDUCE_MOTION) puck.classList.add('animate');
+  render();
+  toast(restored ? 'Hand ' + n + ' is back in the editor to fix.' : 'Hand ' + n + ' removed.');
+}
+
+function clearHand() {
+  var P = positions();
+  if (!P.ok) return;
+  var prev = S.draft ? JSON.parse(JSON.stringify(S.draft)) : null;
+  if (!prev || !prev.touched) { toast('Nothing to clear yet.'); return; }
+  S.draft = newDraft(P);
+  save();
+  render();
+  toast('Hand cleared.', { action: 'Undo', onAction: function () { S.draft = prev; save(); render(); } });
+}
+
+/* ---------- edit a past hand ---------- */
+function editHand(hid) {
+  var idx = S.hands.findIndex(function (h) { return h.id === hid; });
+  if (idx < 0) return;
+  var h = S.hands[idx], n = idx + 1;
+  var winners = h.winners.slice();
+  function minFor(id) { return id === h.bbP ? h.bbAmt : id === h.sbP ? h.sbAmt : 0; }
+  function posFor(id) { return id === h.bbP ? 'BB' : id === h.sbP ? 'SB' : ''; }
+  var html =
+    '<p class="muted">' + new Date(h.ts).toLocaleString('en-GB', { weekday: 'short', hour: 'numeric', minute: '2-digit' }) + '. Dealer ' + nm(h.button) + '.</p>' +
+    h.players.map(function (id) {
+      var pos = posFor(id);
+      return '<div class="edit-row"><span class="dot" style="--c:' + col(id) + '"></span><span class="pname">' + nm(id) + '</span>' +
+        (pos ? '<span class="pos">' + pos + '</span>' : '') +
+        '<label class="amt"><span aria-hidden="true">\u00A3</span><input class="edit-amt" data-eid="' + id + '" type="text" inputmode="decimal" autocomplete="off" value="' + pounds(h.bets[id] || 0) + '" aria-label="' + nm(id) + ' total put in"></label></div>';
+    }).join('') +
+    '<div class="edit-pot"><span class="muted">Pot</span><strong id="e-pot">' + fmt(h.pot) + '</strong></div>' +
+    '<p class="sh">Who won? <span class="muted">(pick more than one for a split pot)</span></p>' +
+    '<div class="winner-chips" id="e-winners">' + h.players.map(function (id) {
+      return '<button type="button" class="wchip" data-ew="' + id + '" style="--c:' + col(id) + '" aria-pressed="' + (winners.indexOf(id) > -1) + '"><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</button>';
+    }).join('') + '</div>' +
+    '<p class="err" id="e-err" role="alert"></p>';
+
+  function readBets(sheet) {
+    var bets = {}, bad = false;
+    $$('.edit-amt', sheet).forEach(function (inp) {
+      var v = parseMoney(inp.value);
+      if (v === null) bad = true;
+      bets[inp.getAttribute('data-eid')] = v === null ? 0 : v;
+    });
+    return bad ? null : bets;
+  }
+
+  openModal({
+    title: 'Edit hand ' + n,
+    html: html,
+    mount: function (sheet) {
+      sheet.addEventListener('input', function (e) {
+        if (!e.target.classList.contains('edit-amt')) return;
+        var bets = readBets(sheet);
+        $('#e-pot', sheet).textContent = bets ? fmt(Object.keys(bets).reduce(function (a, k) { return a + bets[k]; }, 0)) : '\u2013';
+      });
+      sheet.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-ew]');
+        if (!b) return;
+        var id = b.getAttribute('data-ew');
+        winners = winners.indexOf(id) > -1 ? winners.filter(function (w) { return w !== id; }) : winners.concat(id);
+        b.setAttribute('aria-pressed', String(winners.indexOf(id) > -1));
+      });
+    },
+    actions: [
+      { label: 'Delete hand', kind: 'danger', onClick: function (close) {
+          close();
+          confirmBox('Delete hand ' + n + '?', 'It comes off everyone\u2019s profit and loss. Later hands are renumbered.', 'Delete hand', true).then(function (ok) {
+            if (!ok) return;
+            var i = S.hands.findIndex(function (x) { return x.id === hid; });
+            if (i < 0) return;
+            var removed = S.hands.splice(i, 1)[0];
+            save(); render();
+            toast('Hand ' + n + ' deleted.', { action: 'Undo', onAction: function () { S.hands.splice(i, 0, removed); save(); render(); } });
+          });
+          return false;
+        } },
+      { label: 'Cancel' },
+      { label: 'Save changes', kind: 'primary', onClick: function (close, sheet) {
+          var err = $('#e-err', sheet);
+          var bets = readBets(sheet);
+          if (!bets) { err.textContent = 'One of the amounts isn\u2019t a number. Use pounds, like 1.50.'; return false; }
+          for (var k in bets) {
+            if (bets[k] < minFor(k)) { err.textContent = rawName(k) + ' posted the blind, so it can\u2019t be less than ' + fmt(minFor(k)) + '.'; return false; }
+          }
+          if (!winners.length) { err.textContent = 'Pick who won.'; return false; }
+          var pot = Object.keys(bets).reduce(function (a, k2) { return a + bets[k2]; }, 0);
+          if (pot <= 0) { err.textContent = 'The pot can\u2019t be empty.'; return false; }
+          var shares = distribute(pot, winners, h.button), net = {};
+          h.players.forEach(function (id) { net[id] = (shares[id] || 0) - (bets[id] || 0); });
+          var folded = Object.assign({}, h.folded || {});
+          winners.forEach(function (w) { delete folded[w]; });
+          Object.assign(h, { bets: bets, winners: winners.slice(), pot: pot, net: net, folded: folded });
+          save(); render();
+          toast('Hand ' + n + ' updated.');
+        } }
+    ]
+  });
+}
+
+/* ---------- settings ---------- */
+function openSettings() {
+  var tmp = S.players.map(function (p) { return Object.assign({}, p); });
+  var sbStr = pounds(S.sb), bbStr = pounds(S.bb);
+  function body() {
+    return '<p class="sh">Players</p>' +
+      '<p class="muted" style="margin:0">In seat order, going clockwise. The dealer button and blinds move in this order.</p>' +
+      tmp.map(function (p, i) {
+        return '<div class="set-row"><span class="dot" style="--c:' + PALETTE[p.color] + '"></span>' +
+          '<input class="field" data-n="' + i + '" value="' + esc(p.name) + '" maxlength="14" aria-label="Seat ' + (i + 1) + ' name" autocomplete="off">' +
+          '<button type="button" class="icon-btn sm" data-mv="up" data-i="' + i + '"' + (i === 0 ? ' disabled style="opacity:.35"' : '') + ' aria-label="Move ' + esc(p.name) + ' up">' + ICON_UP + '</button>' +
+          '<button type="button" class="icon-btn sm" data-mv="down" data-i="' + i + '"' + (i === tmp.length - 1 ? ' disabled style="opacity:.35"' : '') + ' aria-label="Move ' + esc(p.name) + ' down">' + ICON_DOWN + '</button></div>';
+      }).join('') +
+      '<p class="sh">Blinds</p>' +
+      '<div class="set-blinds">' +
+        '<label>Small blind<span class="money-field">\u00A3<input class="field" id="set-sb" inputmode="decimal" value="' + sbStr + '" autocomplete="off"></span></label>' +
+        '<label>Big blind<span class="money-field">\u00A3<input class="field" id="set-bb" inputmode="decimal" value="' + bbStr + '" autocomplete="off"></span></label>' +
+      '</div>' +
+      '<p class="muted" style="margin-top:8px">New blinds apply from the next hand. Hands already recorded keep their own blinds.</p>' +
+      '<p class="err" id="set-err" role="alert"></p>';
+  }
+  function readInputs(sheet) {
+    $$('[data-n]', sheet).forEach(function (inp) { tmp[+inp.getAttribute('data-n')].name = inp.value; });
+    sbStr = $('#set-sb', sheet).value; bbStr = $('#set-bb', sheet).value;
+  }
+  openModal({
+    title: 'Settings',
+    html: body(),
+    mount: function (sheet) {
+      sheet.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-mv]');
+        if (!b || b.disabled) return;
+        readInputs(sheet);
+        var i = +b.getAttribute('data-i'), j = b.getAttribute('data-mv') === 'up' ? i - 1 : i + 1;
+        var t = tmp[i]; tmp[i] = tmp[j]; tmp[j] = t;
+        $('.sheet-body', sheet).innerHTML = body();
+        var again = $('[data-mv="' + b.getAttribute('data-mv') + '"][data-i="' + j + '"]', sheet);
+        if (again && !again.disabled) again.focus();
+      });
+    },
+    actions: [
+      { label: 'Cancel' },
+      { label: 'Save settings', kind: 'primary', onClick: function (close, sheet) {
+          readInputs(sheet);
+          var err = $('#set-err', sheet);
+          var names = tmp.map(function (p) { return p.name.trim(); });
+          if (names.some(function (n) { return !n; })) { err.textContent = 'Every player needs a name.'; return false; }
+          var lower = names.map(function (n) { return n.toLowerCase(); });
+          if (lower.some(function (n, i) { return lower.indexOf(n) !== i; })) { err.textContent = 'Two players can\u2019t have the same name.'; return false; }
+          var sb = parseMoney(sbStr), bb = parseMoney(bbStr);
+          if (sb === null || bb === null || sb <= 0 || bb <= 0) { err.textContent = 'Blinds need to be amounts above \u00A30, like 0.10.'; return false; }
+          if (bb < sb) { err.textContent = 'The big blind can\u2019t be smaller than the small blind.'; return false; }
+          S.players = tmp.map(function (p, i) { return { id: p.id, name: names[i], color: p.color }; });
+          S.sb = sb; S.bb = bb;
+          save(); render();
+          toast('Settings saved.');
+        } }
+    ]
+  });
+}
+
+/* ---------- sessions ---------- */
+function newSession() {
+  if (!S.hands.length) { toast('Record a hand first. There\u2019s nothing to save yet.'); return; }
+  var tx = settle(sessionNet());
+  var owed = tx.length ? ' Before you do, make sure everyone has paid: ' + tx.map(function (t) { return nm(t.from) + ' pays ' + nm(t.to) + ' ' + fmt(t.amt); }).join(', ') + '.' : '';
+  confirmBox('Start a new session?',
+    'This saves the current ' + plural(S.hands.length, 'hand') + ' under Past sessions and clears the table.' + owed,
+    'Start new session').then(function (ok) {
+      if (!ok) return;
+      var st = statsFor(S.hands), net = {}, names = {};
+      S.players.forEach(function (p) { net[p.id] = st.per[p.id].net; names[p.id] = p.name; });
+      S.archive.unshift({
+        id: uid(), start: S.hands[0].ts, end: S.hands[S.hands.length - 1].ts,
+        hands: S.hands.length, net: net, names: names, biggest: st.biggest, volume: st.volume,
+        log: S.hands
+      });
+      var lastBtn = S.hands[S.hands.length - 1].button;
+      S.startDealer = nextIn(lastBtn) || lastBtn;
+      S.hands = []; S.draft = null; S.dealerOverride = null; S.sessionStart = Date.now();
+      save(); render();
+      toast('New session started. The last one is saved under Past sessions.');
+    });
+}
+
+function openSessions() {
+  var all = allTimeNet();
+  var ids = order().slice().sort(function (a, b) { return all[b] - all[a]; });
+  var html =
+    '<p class="sh">All time, ' + plural(allTimeHands(), 'hand') + '</p>' +
+    '<div class="alltime">' + ids.map(function (id) {
+      return '<div><span><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</span><strong class="' + tone(all[id]) + '">' + fmtS(all[id]) + '</strong></div>';
+    }).join('') + '</div>' +
+    '<p class="sh">Past sessions</p>' +
+    (S.archive.length ? S.archive.map(function (a) {
+      return '<div class="sess"><div class="sess-top"><span class="sess-date">' + dateStr(a.start) + ', ' + timeStr(a.start) + ' to ' + timeStr(a.end) + '</span>' +
+        '<button type="button" class="btn-text sm" data-del="' + esc(a.id) + '">Delete</button></div>' +
+        '<div class="muted">' + plural(a.hands, 'hand') + (a.biggest ? ', biggest pot ' + fmt(a.biggest) : '') + '</div>' +
+        '<div class="sess-nets">' + order().map(function (id) {
+          var v = a.net[id] || 0;
+          return '<span><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + ' <b class="' + tone(v) + '">' + fmtS(v) + '</b></span>';
+        }).join('') + '</div></div>';
+    }).join('') : '<p class="muted">None yet. Use Start new session at the end of a night to save it here.</p>');
+  openModal({
+    title: 'Past sessions',
+    html: html,
+    mount: function (sheet, close) {
+      sheet.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-del]');
+        if (!b) return;
+        var sid = b.getAttribute('data-del');
+        close();
+        confirmBox('Delete this session?', 'It comes off the all-time totals. This can\u2019t be undone.', 'Delete session', true).then(function (ok) {
+          if (!ok) { openSessions(); return; }
+          S.archive = S.archive.filter(function (a) { return a.id !== sid; });
+          if (!S.archive.length) S.owesView = 'session';
+          save(); render();
+          toast('Session deleted.');
+          openSessions();
+        });
+      });
+    },
+    actions: [{ label: 'Done', kind: 'primary' }]
+  });
+}
+
+/* ---------- sharing and files ---------- */
+function summaryText() {
+  var view = S.archive.length ? S.owesView : 'session';
+  var net = view === 'all' ? allTimeNet() : sessionNet();
+  var lines = ['FLAT 1 POKER, ' + dateStr(Date.now())];
+  lines.push(view === 'all'
+    ? 'All time, ' + plural(allTimeHands(), 'hand')
+    : plural(S.hands.length, 'hand') + ', blinds ' + fmt(S.sb) + '/' + fmt(S.bb));
+  lines.push('');
+  order().slice().sort(function (a, b) { return net[b] - net[a]; }).forEach(function (id) {
+    lines.push(rawName(id) + ': ' + fmtS(net[id]));
+  });
+  lines.push('');
+  var tx = settle(net);
+  if (tx.length) tx.forEach(function (t) { lines.push(rawName(t.from) + ' pays ' + rawName(t.to) + ' ' + fmt(t.amt)); });
+  else lines.push('All square.');
+  return lines.join('\n');
+}
+function share() {
+  var text = summaryText();
+  function fallback() {
+    openModal({ title: 'Summary', html: '<p class="muted">Copy this into the group chat.</p><textarea class="field" readonly rows="10">' + esc(text) + '</textarea>', actions: [{ label: 'Done', kind: 'primary' }],
+      mount: function (sheet) { var t = $('textarea', sheet); t.focus(); t.select(); } });
+  }
+  if (navigator.share) {
+    navigator.share({ text: text }).catch(function (e) { if (e && e.name !== 'AbortError') fallback(); });
+    return;
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function () { toast('Summary copied. Paste it in the group chat.'); }, fallback);
+    return;
+  }
+  fallback();
+}
+function download(name, type, text) {
+  var blob = new Blob([text], { type: type });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name; a.rel = 'noopener';
+  document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+}
+function csvCell(v) { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function exportCSV() {
+  if (!S.hands.length) { toast('No hands to export yet.'); return; }
+  var ids = order();
+  var head = ['Hand', 'Time', 'Dealer', 'Small blind', 'Big blind']
+    .concat(ids.map(function (id) { return rawName(id) + ' put in'; }))
+    .concat(['Pot', 'Winner'])
+    .concat(ids.map(function (id) { return rawName(id) + ' P/L'; }));
+  var rows = S.hands.map(function (h, i) {
+    return [i + 1, new Date(h.ts).toLocaleString('en-GB'), rawName(h.button), rawName(h.sbP), rawName(h.bbP)]
+      .concat(ids.map(function (id) { return h.players.indexOf(id) > -1 ? (h.bets[id] / 100).toFixed(2) : 'out'; }))
+      .concat([(h.pot / 100).toFixed(2), h.winners.map(rawName).join(' & ')])
+      .concat(ids.map(function (id) { return h.players.indexOf(id) > -1 ? ((h.net[id] || 0) / 100).toFixed(2) : ''; }));
+  });
+  var csv = '\ufeff' + [head].concat(rows).map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
+  download('flat1-poker-hands-' + isoDate(Date.now()) + '.csv', 'text/csv;charset=utf-8', csv);
+  toast('Hands exported.');
+}
+function backup() {
+  download('flat1-poker-backup-' + isoDate(Date.now()) + '.json', 'application/json',
+    JSON.stringify({ app: 'flat1-poker', saved: Date.now(), state: S }, null, 1));
+  toast('Backup saved. Keep the file somewhere safe.');
+}
+function onRestore(input) {
+  var f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    var data;
+    try { data = JSON.parse(reader.result); } catch (e) { toast('That file isn\u2019t a Flat 1 Poker backup.'); return; }
+    var raw = data && data.state ? data.state : data;
+    if (!raw || !Array.isArray(raw.hands)) { toast('That file isn\u2019t a Flat 1 Poker backup.'); return; }
+    var next = sanitize(raw);
+    var when = data.saved ? ' from ' + dateStr(data.saved) : '';
+    confirmBox('Restore backup' + when + '?',
+      'It has ' + plural(next.hands.length, 'hand') + ' in the current session and ' + plural(next.archive.length, 'past session') + '. Everything on this device is replaced.',
+      'Restore backup', true).then(function (ok) {
+        if (!ok) return;
+        S = next; save(); tableBuilt = false; render();
+        toast('Backup restored.');
+      });
+  };
+  reader.readAsText(f);
+}
+
+/* ---------- keep screen on ---------- */
+var wakeLock = null, wantWake = false;
+function setWake(on) {
+  wantWake = on;
+  if (on) {
+    navigator.wakeLock.request('screen').then(function (l) {
+      wakeLock = l;
+      l.addEventListener('release', function () { wakeLock = null; renderMenu(); });
+      renderMenu();
+      toast('The screen will stay on while this page is open.');
+    }).catch(function () { wantWake = false; toast('This browser won\u2019t keep the screen on.'); });
+  } else {
+    if (wakeLock) wakeLock.release();
+    wakeLock = null;
+    renderMenu();
+    toast('The screen can sleep again.');
+  }
+}
+document.addEventListener('visibilitychange', function () {
+  if (wantWake && !wakeLock && document.visibilityState === 'visible') {
+    navigator.wakeLock.request('screen').then(function (l) {
+      wakeLock = l; l.addEventListener('release', function () { wakeLock = null; renderMenu(); }); renderMenu();
+    }).catch(function () {});
+  }
+});
+
+/* =========================================================
+   Toast and modal
+   ========================================================= */
+var toastTimer = null;
+function toast(msg, opt) {
+  opt = opt || {};
+  var t = $('#toast');
+  t.innerHTML = '<span>' + esc(msg) + '</span>' + (opt.action ? '<button type="button" class="toast-act">' + esc(opt.action) + '</button>' : '');
+  if (opt.action) {
+    $('.toast-act', t).onclick = function () { hideToast(); opt.onAction(); };
+  }
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, opt.action ? 6500 : 3800);
+}
+function hideToast() { $('#toast').classList.remove('show'); }
+
+function openModal(o) {
+  hideToast();
+  var back = document.createElement('div');
+  back.className = 'modal-back';
+  var actions = o.actions || [];
+  back.innerHTML =
+    '<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="m-title" tabindex="-1">' +
+      '<div class="sheet-head"><h2 id="m-title">' + esc(o.title) + '</h2>' +
+        '<button type="button" class="icon-btn sm m-close" aria-label="Close">' + ICON_CLOSE + '</button></div>' +
+      '<div class="sheet-body">' + o.html + '</div>' +
+      (actions.length ? '<div class="sheet-actions">' + actions.map(function (a, i) {
+        var cls = a.kind === 'primary' ? 'btn-primary' : a.kind === 'danger' ? 'btn-danger' : 'btn-ghost';
+        return '<button type="button" class="' + cls + '" data-ai="' + i + '">' + esc(a.label) + '</button>';
+      }).join('') + '</div>' : '') +
+    '</div>';
+  var prevFocus = document.activeElement;
+  document.body.appendChild(back);
+  document.body.classList.add('modal-open');
+  var sheet = $('.sheet', back);
+  var closed = false;
+  function close() {
+    if (closed) return;
+    closed = true;
+    document.removeEventListener('keydown', onKey, true);
+    back.remove();
+    if (!$('.modal-back')) document.body.classList.remove('modal-open');
+    if (o.onClose) o.onClose();
+    if (prevFocus && prevFocus.focus && document.contains(prevFocus)) prevFocus.focus();
+  }
+  function onKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
+    if (e.key === 'Tab') {
+      var f = $$('button:not([disabled]), input, select, textarea, [tabindex="0"]', sheet).filter(function (x) { return x.offsetParent !== null; });
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  }
+  document.addEventListener('keydown', onKey, true);
+  back.addEventListener('click', function (e) { if (e.target === back) close(); });
+  $('.m-close', back).onclick = close;
+  actions.forEach(function (a, i) {
+    $('[data-ai="' + i + '"]', back).onclick = function () {
+      var r = a.onClick ? a.onClick(close, sheet) : undefined;
+      if (r !== false) close();
+    };
+  });
+  if (o.mount) o.mount(sheet, close);
+  var firstField = $('.sheet-body input:not([readonly])', sheet);
+  if (firstField && !('ontouchstart' in window)) firstField.focus(); else sheet.focus();
+  return close;
+}
+
+function confirmBox(title, text, label, danger) {
+  return new Promise(function (resolve) {
+    var answered = false;
+    openModal({
+      title: title,
+      html: '<p>' + text + '</p>',
+      onClose: function () { if (!answered) resolve(false); },
+      actions: [
+        { label: 'Cancel' },
+        { label: label, kind: danger ? 'danger' : 'primary', onClick: function () { answered = true; resolve(true); } }
+      ]
+    });
+  });
+}
+
+/* =========================================================
+   Dropdowns
+   ========================================================= */
+function openDD(btn) {
+  closeDDs();
+  var menu = document.getElementById(btn.getAttribute('aria-controls'));
+  menu.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+  var first = $('.mi', menu);
+  if (first) first.focus();
+}
+function closeDDs(returnFocus) {
+  $$('.dd-menu').forEach(function (m) {
+    if (m.hidden) return;
+    m.hidden = true;
+    var b = $('[aria-controls="' + m.id + '"]');
+    if (b) { b.setAttribute('aria-expanded', 'false'); if (returnFocus) b.focus(); }
+  });
+}
+
+/* =========================================================
+   Events
+   ========================================================= */
+document.addEventListener('click', function (e) {
+  var ddBtn = e.target.closest('[data-dd]');
+  if (ddBtn) {
+    var menu = document.getElementById(ddBtn.getAttribute('aria-controls'));
+    if (menu.hidden) openDD(ddBtn); else closeDDs();
+    return;
+  }
+  if (!e.target.closest('.dd-menu')) closeDDs();
+  var a = e.target.closest('[data-action]');
+  if (!a || a.disabled) return;
+  var id = a.getAttribute('data-id');
+  var inMainMenu = !!a.closest('#main-menu');
+  if (inMainMenu) closeDDs();
+  switch (a.getAttribute('data-action')) {
+    case 'toggle-out': toggleOut(id); break;
+    case 'open-sitout': openDD($('#sitout-btn')); break;
+    case 'add': setBet(id, (S.draft.bets[id] || 0) + parseInt(a.getAttribute('data-amt'), 10)); renderLive(); break;
+    case 'call': {
+      var P = positions(), E = evalDraft(P, S.draft);
+      setBet(id, E.max); renderLive(); break;
+    }
+    case 'undo-bet': {
+      var d = S.draft, h = d && d.hist[id];
+      if (h && h.length) { d.bets[id] = h.pop(); d.touched = true; save(); }
+      else { setBet(id, 0, false); }
+      renderLive(); break;
+    }
+    case 'fold': toggleFold(id); break;
+    case 'win': pickWinner(id); break;
+    case 'record': record(); break;
+    case 'clear-hand': clearHand(); break;
+    case 'auto-dealer': S.dealerOverride = null; save(); render(); toast('Back to the normal rotation.'); break;
+    case 'owes-view': S.owesView = a.getAttribute('data-view'); save(); renderOwes(); break;
+    case 'share': share(); break;
+    case 'undo-hand': undoLast(); break;
+    case 'edit-hand': editHand(a.getAttribute('data-hid')); break;
+    case 'export-csv': exportCSV(); break;
+    case 'backup': backup(); break;
+    case 'restore': $('#restore-file').click(); break;
+    case 'settings': openSettings(); break;
+    case 'sessions': openSessions(); break;
+    case 'new-session': newSession(); break;
+    case 'wake': setWake(!wakeLock); break;
+  }
+});
+
+document.addEventListener('input', function (e) {
+  if (e.target.classList && e.target.classList.contains('amt-input')) onAmtInput(e.target);
+});
+document.addEventListener('change', function (e) {
+  var t = e.target;
+  if (t.classList && t.classList.contains('amt-input')) onAmtCommit(t);
+  else if (t.id === 'split-toggle') onSplit(t.checked);
+  else if (t.id === 'dealer-select') onDealer(t.value);
+  else if (t.id === 'restore-file') onRestore(t);
+});
+document.addEventListener('focusin', function (e) {
+  var t = e.target;
+  if (t.classList && (t.classList.contains('amt-input') || t.classList.contains('edit-amt'))) {
+    if (t.classList.contains('amt-input') && S.draft) t.setAttribute('data-prev', String(S.draft.bets[t.getAttribute('data-id')] || 0));
+    setTimeout(function () { try { t.select(); } catch (err) {} }, 0);
+  }
+});
+document.addEventListener('keydown', function (e) {
+  var t = e.target;
+  if (e.key === 'Enter' && t.classList && t.classList.contains('amt-input')) { e.preventDefault(); t.blur(); return; }
+  var menu = t.closest && t.closest('.dd-menu');
+  if (menu) {
+    var items = $$('.mi', menu), i = items.indexOf(t);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeDDs(true); }
+    else if (e.key === 'Tab') { closeDDs(); }
+  } else if (e.key === 'Escape') {
+    closeDDs();
+  }
+});
+
+var resizeTimer = null;
+window.addEventListener('resize', function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderChart, 120);
+});
+/* Another tab or device window changed the data: pick it up. */
+window.addEventListener('storage', function (e) {
+  if (e.key !== KEY || !e.newValue) return;
+  try { S = sanitize(JSON.parse(e.newValue)); render(); } catch (err) {}
+});
+
+render();
+})();
+</script>
+</body>
+</html>
