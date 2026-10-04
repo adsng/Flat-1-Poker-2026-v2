@@ -73,7 +73,18 @@ button:disabled{cursor:default}
   letter-spacing:.005em;color:var(--ivory);
   text-shadow:0 2px 0 rgba(0,0,0,.35);
 }
-.meta{margin:8px 0 0;color:var(--sage);font-size:14px}
+.meta{margin:8px 0 0;color:var(--sage);font-size:14px;display:flex;flex-wrap:wrap;align-items:center;row-gap:6px}
+.sync-chip{
+  display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:0 11px;margin-left:12px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(17,52,38,.7);color:var(--sage);font-size:13px;font-weight:600;
+}
+.sync-chip i{width:8px;height:8px;border-radius:50%;background:var(--up);flex:none}
+.sync-chip[data-s="idle"] i{background:var(--sage)}
+.sync-chip[data-s="pending"] i,.sync-chip[data-s="syncing"] i{background:var(--warn);animation:blink 1s ease-in-out infinite alternate}
+.sync-chip[data-s="signin"],.sync-chip[data-s="error"],.sync-chip[data-s="conflict"]{color:var(--warn);border-color:rgba(242,199,107,.5)}
+.sync-chip[data-s="signin"] i,.sync-chip[data-s="error"] i,.sync-chip[data-s="conflict"] i{background:var(--warn)}
+.sync-chip[data-s="offline"] i{background:var(--sage)}
+@keyframes blink{to{opacity:.3}}
 .meta span{white-space:nowrap}
 .meta span+span::before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--line);margin:0 9px 3px}
 .top-actions{display:flex;align-items:center;gap:8px;padding-top:4px;position:relative}
@@ -327,7 +338,7 @@ button:disabled{cursor:default}
 .prow.is-folded .pname{color:var(--sage);text-decoration:line-through;text-decoration-color:rgba(156,185,170,.6)}
 .prow.is-folded .amt input{color:var(--sage)}
 .quick{
-  display:grid;grid-template-columns:1.3fr repeat(5, minmax(0,1fr)) .9fr;gap:5px;margin-top:9px;
+  display:grid;grid-template-columns:1.25fr repeat(4, minmax(0,1fr)) 1.2fr .85fr;gap:5px;margin-top:9px;
 }
 .q{
   min-height:44px;border-radius:12px;padding:0 2px;
@@ -343,6 +354,11 @@ button:disabled{cursor:default}
 .q-call:disabled{color:var(--sage);border-color:var(--line);opacity:.6}
 .q-undo svg{width:18px;height:18px}
 .q-undo{color:var(--sage)}
+.q-allin{font-size:12.5px;color:var(--warn);border-color:rgba(242,199,107,.35)}
+.q-allin[aria-pressed="true"]{background:var(--warn);border-color:var(--warn);color:var(--ink)}
+.prow.is-allin .amt{border-color:rgba(242,199,107,.65)}
+.prow.is-allin .amt input{color:var(--warn)}
+.bet.allin .bet-amt{color:var(--warn)}
 @media (max-width:359px){
   .quick{grid-template-columns:repeat(4, minmax(0,1fr))}
   .amt{width:100px}
@@ -381,6 +397,18 @@ button:disabled{cursor:default}
 .pv b{font-variant-numeric:tabular-nums}
 .hint{margin:12px 0 12px;min-height:21px;color:var(--sage);font-size:14px}
 .hint.warn{color:var(--warn)}
+.hint .fixes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fix{min-height:40px;padding:0 14px;border-radius:12px;background:var(--warn);color:var(--ink);font-weight:600;font-size:14px}
+.fix-fold{background:transparent;color:var(--chalk);border:1px solid var(--line)}
+.pot-break{margin:4px 0 0;color:var(--sage);font-size:14px;text-align:right}
+.pot-break:empty{display:none}
+.side-pot{margin-top:14px;padding:12px;border-radius:16px;background:rgba(12,39,30,.55);border:1px solid var(--line)}
+.sp-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sp-title{font-weight:600;font-size:16px}
+.sp-amt{font:900 26px/1 var(--display);color:var(--ivory);font-variant-numeric:tabular-nums}
+.sp-sub{margin:2px 0 10px;color:var(--sage);font-size:13.5px}
+.sp-note{margin:8px 0 0;color:var(--sage);font-size:13.5px}
+.pot-note{margin:12px 0 0;color:var(--sage);font-size:14px}
 .empty-hand{padding:18px 0 4px}
 .empty-hand p{margin:0 0 14px;color:var(--sage)}
 
@@ -442,6 +470,7 @@ button:disabled{cursor:default}
 .hist .b i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--ink);background:var(--ivory);border-radius:999px;padding:1px 5px;margin-right:5px;vertical-align:1px}
 .hist .pl{display:block;font-size:12.5px;font-weight:600}
 .hist td.fd .b{color:var(--sage);font-weight:500}
+.hist td.ai .b{color:var(--warn)}
 .hist td.outc{color:rgba(156,185,170,.55);font-size:13px}
 .hist td.potc{font-weight:700;color:var(--ivory)}
 .hist .win{display:block;font-size:12.5px;font-weight:600;color:var(--chalk)}
@@ -482,6 +511,7 @@ button:disabled{cursor:default}
 .sheet-actions .btn-danger{margin-right:auto}
 .sh{margin:18px 0 4px;font-size:16px;font-weight:700}
 .sh:first-child{margin-top:4px}
+.sh-sep{border-top:1px solid var(--line-soft);padding-top:18px;margin-top:22px}
 .muted{color:var(--sage);font-size:14px}
 .field{
   width:100%;min-height:46px;padding:0 12px;border-radius:12px;
@@ -496,11 +526,24 @@ textarea.field{padding:12px;min-height:200px;font-size:14px;line-height:1.5}
 .money-field{display:flex;align-items:center;gap:6px;padding-left:12px;border-radius:12px;background:var(--bottle);border:1px solid var(--line);color:var(--sage)}
 .money-field:focus-within{border-color:var(--ivory)}
 .money-field input{border:0;background:none;padding-left:0}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 6px}
+.small{font-size:13px}
+.lbl{display:block;margin:14px 0 6px;font-size:14px;color:var(--sage)}
+.addr{display:block;word-break:break-all;padding:10px 12px;border-radius:10px;background:var(--bottle);border:1px solid var(--line);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--chalk)}
 .err{color:var(--down);font-size:14px;margin:12px 0 0;min-height:1em}
 .err:empty{display:none}
-.edit-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
-.edit-row .pname{flex:0 1 auto;font-size:16px}
-.edit-row .amt{width:118px;margin-left:auto}
+.edit-row{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.er-top{display:flex;align-items:center;gap:10px}
+.er-top .pname{flex:0 1 auto;font-size:16px}
+.er-top .amt{width:118px;margin-left:auto}
+.er-tog{display:flex;gap:8px;margin-top:8px;padding-left:22px}
+.tog{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);color:var(--sage);font-size:13.5px;font-weight:600}
+.tog[aria-pressed="true"]{background:rgba(255,156,136,.14);border-color:rgba(255,156,136,.5);color:var(--down)}
+.tog-ai{color:var(--warn);border-color:rgba(242,199,107,.35)}
+.tog-ai[aria-pressed="true"]{background:var(--warn);border-color:var(--warn);color:var(--ink)}
+.edit-row.is-folded .pname{color:var(--sage);text-decoration:line-through}
+.edit-row.is-allin .amt input{color:var(--warn)}
+.sheet .winner-head{margin-top:14px}
 .edit-pot{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px}
 .edit-pot strong{font:900 30px/1 var(--display);color:var(--ivory)}
 .sess{padding:14px 0;border-bottom:1px solid var(--line-soft)}
@@ -569,7 +612,7 @@ textarea.field{padding:12px;min-height:200px;font-size:14px;line-height:1.5}
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<input type="file" id="restore-file" accept="application/json,.json" hidden>
+<input type="file" id="restore-file" accept=".json,.txt,application/json,text/plain" hidden>
 
 <script>
 (function () {
@@ -580,7 +623,7 @@ textarea.field{padding:12px;min-height:200px;font-size:14px;line-height:1.5}
    ========================================================= */
 var KEY = 'flat1poker:v1';
 var PALETTE = { red: '#E5533D', blue: '#4C8DF0', amber: '#F0B43C' };
-var QUICK = [10, 20, 50, 100, 500];
+var QUICK = [10, 20, 50, 100];
 var REDUCE_MOTION = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 var WAKE_SUPPORTED = 'wakeLock' in navigator;
 
@@ -690,6 +733,8 @@ function sanitize(o) {
       bets: o.draft.bets,
       folded: (o.draft.folded && typeof o.draft.folded === 'object') ? o.draft.folded : {},
       winners: Array.isArray(o.draft.winners) ? o.draft.winners : [],
+      allin: (o.draft.allin && typeof o.draft.allin === 'object') ? o.draft.allin : {},
+      sideWinners: (o.draft.sideWinners && typeof o.draft.sideWinners === 'object') ? o.draft.sideWinners : {},
       split: !!o.draft.split,
       hist: (o.draft.hist && typeof o.draft.hist === 'object') ? o.draft.hist : {},
       touched: !!o.draft.touched
@@ -709,15 +754,17 @@ function load() {
     return raw ? sanitize(JSON.parse(raw)) : freshState();
   } catch (e) { return freshState(); }
 }
-function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+function writeLocal() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); return true; }
   catch (e) {
     if (!storageWarned) {
       storageWarned = true;
       toast('This browser is blocking storage, so hands won\u2019t be kept if the page closes.');
     }
+    return false;
   }
 }
+function save() { writeLocal(); onStateSaved(); }
 
 var S = load();
 
@@ -762,17 +809,21 @@ function minBet(id, P) { return id === P.bb ? S.bb : id === P.sb ? S.sb : 0; }
 function posLabel(id, P) { return id === P.bb ? 'BB' : id === P.sb ? 'SB' : ''; }
 
 /* =========================================================
-   The hand being entered (draft)
+   The hand being entered (draft), and side pots
    ========================================================= */
 function newDraft(P) {
   var bets = {};
   P.active.forEach(function (id) { bets[id] = minBet(id, P); });
-  return { key: posKey(P), bets: bets, folded: {}, winners: [], split: false, hist: {}, touched: false };
+  return { key: posKey(P), bets: bets, folded: {}, allin: {}, winners: [], sideWinners: {}, split: false, hist: {}, touched: false };
 }
 function ensureDraft(P) {
   if (!P.ok) return null;
   var d = S.draft;
-  if (d && d.key === posKey(P)) return d;
+  if (d && d.key === posKey(P)) {
+    if (!d.allin) d.allin = {};
+    if (!d.sideWinners) d.sideWinners = {};
+    return d;
+  }
   if (d && d.touched) toast('Seats or blinds changed, so the hand in progress was reset.');
   S.draft = newDraft(P);
   save();
@@ -791,18 +842,111 @@ function distribute(pot, winners, button) {
   seq.forEach(function (id) { out[id] = base + (rem > 0 ? 1 : 0); if (rem > 0) rem--; });
   return out;
 }
+/* Splits the money into a main pot and side pots.
+   Each level is what one of the players still in the hand put in. A pot at
+   that level holds everyone's money up to it, and only players who reached
+   it can win it. Folded players' money still goes in, but they can't win. */
+function buildPots(players, bets, folded) {
+  var inHand = players.filter(function (id) { return !folded[id]; });
+  var levels = [];
+  inHand.forEach(function (id) { var c = bets[id] || 0; if (levels.indexOf(c) < 0) levels.push(c); });
+  levels.sort(function (a, b) { return a - b; });
+  var pots = [], prev = 0;
+  levels.forEach(function (L) {
+    var amt = 0, from = [];
+    players.forEach(function (id) {
+      var c = bets[id] || 0;
+      var part = Math.max(0, Math.min(c, L) - Math.min(c, prev));
+      if (part > 0) { amt += part; from.push(id); }
+    });
+    if (amt > 0) pots.push({ amt: amt, from: from, eligible: inHand.filter(function (id) { return (bets[id] || 0) >= L; }) });
+    prev = L;
+  });
+  var extra = 0, extraFrom = [];
+  players.forEach(function (id) { var c = bets[id] || 0; if (c > prev) { extra += c - prev; extraFrom.push(id); } });
+  if (extra > 0) {
+    if (pots.length) {
+      var last = pots[pots.length - 1];
+      last.amt += extra;
+      extraFrom.forEach(function (id) { if (last.from.indexOf(id) < 0) last.from.push(id); });
+    } else {
+      pots.push({ amt: extra, from: extraFrom, eligible: inHand.slice() });
+    }
+  }
+  pots.forEach(function (p) {
+    p.key = p.eligible.join(',');
+    p.returned = p.eligible.length === 1 && p.from.length === 1 && p.from[0] === p.eligible[0];
+  });
+  return pots;
+}
+/* Works out every pot, who wins each one, and each player's profit or loss.
+   The best hand wins every pot it's in, so a side pot defaults to the
+   previous pot's winner when they're in it. */
+function computeHand(x) {
+  var players = x.players, bets = x.bets || {}, folded = x.folded || {}, allin = x.allin || {};
+  var side = x.sideWinners || {};
+  var pot = players.reduce(function (a, id) { return a + (bets[id] || 0); }, 0);
+  var inHand = players.filter(function (id) { return !folded[id]; });
+  var max = Math.max.apply(null, [0].concat(players.map(function (id) { return bets[id] || 0; })));
+  var maxIn = Math.max.apply(null, [0].concat(inHand.map(function (id) { return bets[id] || 0; })));
+  var short = inHand.length > 1 ? inHand.filter(function (id) { return (bets[id] || 0) < maxIn && !allin[id]; }) : [];
+  var top = inHand.filter(function (id) { return (bets[id] || 0) === maxIn; });
+  var pots = buildPots(players, bets, folded);
+  var prev = [];
+  pots.forEach(function (p, k) {
+    var elig = function (id) { return p.eligible.indexOf(id) > -1; };
+    var w, how;
+    if (p.eligible.length === 1) { w = p.eligible.slice(); how = 'only'; }
+    else if (k === 0) { w = (x.winners || []).filter(elig); how = w.length ? 'picked' : 'none'; }
+    else {
+      var ex = (side[p.key] || []).filter(elig);
+      if (ex.length) { w = ex; how = 'picked'; }
+      else { w = prev.filter(elig); how = w.length ? 'follows' : 'none'; }
+    }
+    p.winners = w; p.how = how; prev = w;
+  });
+  var problems = [];
+  if (short.length) problems.push({ type: 'short', ids: short });
+  pots.forEach(function (p, k) { if (!p.winners.length) problems.push({ type: k === 0 ? 'main' : 'side', index: k }); });
+  var ok = pot > 0 && pots.length > 0 && !problems.length;
+  var shares = {}, net = {};
+  if (ok) {
+    pots.forEach(function (p) {
+      var d = distribute(p.amt, p.winners, x.button);
+      for (var id in d) shares[id] = (shares[id] || 0) + d[id];
+    });
+  }
+  players.forEach(function (id) { net[id] = (shares[id] || 0) - (bets[id] || 0); });
+  var live = pots.filter(function (p) { return !p.returned; });
+  var winnersAll = [];
+  (live.length ? live : pots).forEach(function (p) {
+    p.winners.forEach(function (w) { if (winnersAll.indexOf(w) < 0) winnersAll.push(w); });
+  });
+  return {
+    pot: pot, inHand: inHand, pots: pots, live: live, shares: shares, net: net, max: max, maxIn: maxIn,
+    short: short, top: top, problems: problems, ok: ok, winnersAll: winnersAll,
+    hasSide: live.length > 1, button: x.button
+  };
+}
 function evalDraft(P, d) {
-  var pot = P.active.reduce(function (a, id) { return a + (d.bets[id] || 0); }, 0);
-  var inHand = P.active.filter(function (id) { return !d.folded[id]; });
-  var winners = d.winners.filter(function (id) { return inHand.indexOf(id) > -1; });
-  var shares = winners.length ? distribute(pot, winners, P.button) : {};
-  var net = {};
-  P.active.forEach(function (id) { net[id] = (shares[id] || 0) - (d.bets[id] || 0); });
-  var max = Math.max.apply(null, [0].concat(P.active.map(function (id) { return d.bets[id] || 0; })));
-  var live = {};
-  inHand.forEach(function (id) { live[d.bets[id] || 0] = 1; });
-  var mismatch = inHand.length > 1 && Object.keys(live).length > 1;
-  return { pot: pot, inHand: inHand, winners: winners, shares: shares, net: net, max: max, mismatch: mismatch, ok: winners.length > 0 && pot > 0 };
+  return computeHand({
+    players: P.active, bets: d.bets, folded: d.folded, allin: d.allin, winners: d.winners,
+    sideWinners: d.sideWinners, button: P.button
+  });
+}
+/* For saving: keep what each pot held and who won it. */
+function potsForRecord(pots) {
+  return pots.map(function (p) {
+    return { amt: p.amt, eligible: p.eligible.slice(), winners: p.winners.slice(), returned: !!p.returned, picked: p.how === 'picked' };
+  });
+}
+function mainWinnersOf(h) { return (h.pots && h.pots.length ? h.pots[0].winners : h.winners).slice(); }
+function sideFromPots(pots) {
+  var o = {};
+  (pots || []).forEach(function (p, k) {
+    if (k > 0 && p.picked && !p.returned && p.eligible.length > 1) o[p.eligible.join(',')] = p.winners.slice();
+  });
+  return o;
 }
 function setBet(id, v, push) {
   var P = positions(), d = S.draft;
@@ -891,7 +1035,7 @@ function render() {
 function renderMeta() {
   var parts = ['<span>Blinds ' + fmt(S.sb) + ' / ' + fmt(S.bb) + '</span>'];
   if (S.hands.length) parts.push('<span>Since ' + timeStr(S.hands[0].ts) + '</span>');
-  $('#meta').innerHTML = parts.join('');
+  $('#meta').innerHTML = parts.join('') + syncChipHTML();
 }
 
 function renderSitout() {
@@ -918,9 +1062,8 @@ function renderMenu() {
     ['settings', 'Settings'],
     ['sessions', 'Past sessions' + (S.archive.length ? ' (' + S.archive.length + ')' : '')],
     ['share', 'Share summary'],
-    ['export-csv', 'Export hands (CSV)'],
-    ['backup', 'Save backup file'],
-    ['restore', 'Restore from backup']
+    ['cloud', 'Cloud backup'],
+    ['export-csv', 'Export hands (CSV)']
   ];
   if (WAKE_SUPPORTED) items.push(['wake', wakeLock ? 'Let screen sleep' : 'Keep screen on']);
   var html = items.map(function (it) {
@@ -989,17 +1132,125 @@ function updateTableLive(P, d) {
     m.style.setProperty('--c', col(p.id));
     m.classList.toggle('show', amt > 0);
     m.classList.toggle('folded', !!(d && d.folded[p.id]));
-    $('.bet-amt', m).textContent = amt > 0 ? fmt(amt) : '';
+    var ai = !!(d && d.allin && d.allin[p.id]);
+    m.classList.toggle('allin', ai);
+    $('.bet-amt', m).textContent = amt > 0 ? fmt(amt) + (ai ? ' all in' : '') : '';
   });
   $('#t-pot').textContent = fmt(pot);
 }
 
-function rowHTML(id, P, d, E) {
-  var folded = !!d.folded[id];
+function listNames(ids, raw) {
+  var n = ids.map(raw ? rawName : nm);
+  return n.length < 3 ? n.join(' and ') : n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1];
+}
+function winChipHTML(id, sel, disabled, attrs) {
+  return '<button type="button" class="wchip" ' + attrs + ' style="--c:' + col(id) + '" aria-pressed="' + (!!sel) + '"' +
+    (disabled ? ' disabled aria-label="' + nm(id) + ' folded"' : '') + '>' +
+    '<span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</button>';
+}
+function mainSel(R, id) { return !!(R.pots[0] && R.pots[0].winners.indexOf(id) > -1); }
+function mainLabel(R) { return R.hasSide && !R.short.length ? 'Main pot ' + fmt(R.pots[0].amt) + ': who won?' : 'Who won?'; }
+function potLabels(R) {
+  var sides = R.live.length - 1, n = 0;
+  return R.live.map(function (p, k) { return k === 0 ? 'main pot' : (sides > 1 ? 'side pot ' + (++n) : 'side pot'); });
+}
+function breakText(R) {
+  if (!R.hasSide || R.short.length) return '';
+  var labels = potLabels(R);
+  var txt = R.live.map(function (p, k) { return labels[k] + ' ' + fmt(p.amt); }).join(', ');
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
+/* Side pot pickers (and notes for pots that need no choice). */
+function sidePotsHTML(R, mk) {
+  if (R.short.length || R.pots.length < 2) return '';
+  var labels = potLabels(R), out = '';
+  R.pots.forEach(function (p, k) {
+    if (k === 0) return;
+    if (p.returned) {
+      out += '<p class="pot-note">' + fmt(p.amt) + ' that nobody called goes back to ' + nm(p.eligible[0]) + '.</p>';
+      return;
+    }
+    var label = labels[R.live.indexOf(p)];
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+    if (p.eligible.length === 1) {
+      out += '<p class="pot-note">' + label + ' (' + fmt(p.amt) + ') goes to ' + nm(p.eligible[0]) + ', the only player left in it.</p>';
+      return;
+    }
+    var note = p.how === 'follows'
+      ? 'Goes to ' + listNames(p.winners) + ', the best hand still in it. Tap someone else to change.'
+      : p.how === 'none' ? 'Who had the best hand out of these?' : '';
+    out += '<div class="side-pot">' +
+      '<div class="sp-head"><span class="sp-title">' + label + '</span><span class="sp-amt">' + fmt(p.amt) + '</span></div>' +
+      '<p class="sp-sub">Between ' + listNames(p.eligible) + '</p>' +
+      '<div class="winner-chips">' + p.eligible.map(function (id) {
+        return winChipHTML(id, p.winners.indexOf(id) > -1, false, mk(p.key, id));
+      }).join('') + '</div>' +
+      (note ? '<p class="sp-note">' + note + '</p>' : '') +
+    '</div>';
+  });
+  return out;
+}
+/* "Ollie wins £1.50." or "Owen wins the main pot (£1.50), Ollie wins the side pot (£3.00)." */
+function outcomeText(R, html, past) {
+  var names = function (ids) { return listNames(ids, !html); };
+  var win = past ? ' won ' : ' wins ';
+  if (R.live.length > 1 && sameWinnersAll(R.live)) {
+    var total = R.live.reduce(function (a, p) { return a + p.amt; }, 0);
+    var which = R.live.length === 2 ? 'the main and side pots' : 'all ' + R.live.length + ' pots';
+    return names(R.live[0].winners) + (R.live[0].winners.length > 1 ? ' split ' : win) + which + ' (' + fmt(total) + ').';
+  }
+  if (R.live.length > 1) {
+    var labels = potLabels(R);
+    return R.live.map(function (p, k) {
+      return names(p.winners) + (p.winners.length > 1 ? ' split ' : win) + 'the ' + labels[k] + ' (' + fmt(p.amt) + ')';
+    }).join(', ') + '.';
+  }
+  var p = R.live[0] || R.pots[0];
+  if (!p) return '';
+  if (p.winners.length < 2) return names(p.winners) + win + fmt(p.amt) + '.';
+  var sh = distribute(p.amt, p.winners, R.button);
+  var vals = p.winners.map(function (w) { return sh[w]; });
+  var even = vals.every(function (v) { return v === vals[0]; });
+  if (past || even) return names(p.winners) + ' split ' + fmt(p.amt) + (even ? ', ' + short(vals[0]) + ' each.' : '.');
+  return names(p.winners) + ' split ' + fmt(p.amt) + ': ' + p.winners.map(function (w) {
+    return (html ? nm(w) : rawName(w)) + ' ' + short(sh[w]);
+  }).join(', ') + '. The odd penny goes to whoever sits nearest the dealer\u2019s left.';
+}
+function sameWinnersAll(live) {
+  var a = live[0].winners.slice().sort().join(',');
+  return live.every(function (p) { return p.winners.slice().sort().join(',') === a; });
+}
+function hintFor(R, fixAttr) {
+  if (R.short.length) {
+    var s = R.short;
+    return {
+      warn: true,
+      html: listNames(s) + ' put in less than ' + listNames(R.top) + '. Did ' + (s.length > 1 ? 'they' : nm(s[0])) +
+        ' fold, or go all in? (If ' + (s.length > 1 ? 'they' : nm(s[0])) + ' called, add the call instead.)' +
+        '<span class="fixes">' + s.map(function (id) {
+          return '<button type="button" class="fix fix-fold" ' + fixAttr(id, 'fold') + '>' + nm(id) + ' folded</button>' +
+            '<button type="button" class="fix" ' + fixAttr(id, 'allin') + '>' + nm(id) + ' is all in</button>';
+        }).join('') + '</span>'
+    };
+  }
+  var pr = R.problems[0];
+  if (!pr) return { warn: false, html: outcomeText(R, true) };
+  if (pr.type === 'main') return { warn: false, html: R.hasSide ? 'Tap who won the main pot.' : 'Enter what everyone put in, then tap who won.' };
+  return { warn: false, html: 'Pick who won the side pot.' };
+}
+function problemPlain(R) {
+  if (R.short.length) return listNames(R.short, true) + ' put in less than the others. Mark them all in, or fix the amounts.';
+  var pr = R.problems[0];
+  if (!pr) return '';
+  return pr.type === 'main' ? 'Pick who won.' : 'Pick who won the side pot.';
+}
+
+function rowHTML(id, P, d) {
+  var folded = !!d.folded[id], allin = !!(d.allin && d.allin[id]);
   var pos = posLabel(id, P);
   var name = nm(id);
   var dealer = id === P.button ? '<span class="dmark" title="Dealer" aria-label="Dealer">D</span>' : '';
-  return '<div class="prow' + (folded ? ' is-folded' : '') + '" data-id="' + id + '">' +
+  return '<div class="prow' + (folded ? ' is-folded' : '') + (allin ? ' is-allin' : '') + '" data-id="' + id + '">' +
     '<div class="prow-top">' +
       '<span class="dot" style="--c:' + col(id) + '"></span>' +
       '<span class="pname">' + name + '</span>' + dealer +
@@ -1013,16 +1264,10 @@ function rowHTML(id, P, d, E) {
       QUICK.map(function (v) {
         return '<button type="button" class="q" data-action="add" data-id="' + id + '" data-amt="' + v + '" aria-label="Add ' + fmt(v) + ' for ' + name + '">+' + short(v) + '</button>';
       }).join('') +
+      '<button type="button" class="q q-allin" data-action="allin" data-id="' + id + '" aria-pressed="' + allin + '" aria-label="' + name + ' is all in">All in</button>' +
       '<button type="button" class="q q-undo" data-action="undo-bet" data-id="' + id + '" aria-label="Undo last change for ' + name + '">' + ICON_UNDO + '</button>' +
     '</div>' +
   '</div>';
-}
-
-function winChipHTML(id, d) {
-  var folded = !!d.folded[id];
-  var sel = !folded && d.winners.indexOf(id) > -1;
-  return '<button type="button" class="wchip" data-action="win" data-id="' + id + '" style="--c:' + col(id) + '" aria-pressed="' + sel + '"' + (folded ? ' disabled aria-label="' + nm(id) + ' folded"' : '') + '>' +
-    '<span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</button>';
 }
 
 function renderHand(P, d) {
@@ -1051,15 +1296,19 @@ function renderHand(P, d) {
       (headsUp ? ' Heads-up, so the dealer is small blind.' : '') +
       (P.manual ? ' <button type="button" class="btn-text sm" data-action="auto-dealer">Back to normal rotation</button>' : '') +
     '</p>' +
-    '<div class="rows">' + P.active.map(function (id) { return rowHTML(id, P, d, E); }).join('') + '</div>' +
+    '<div class="rows">' + P.active.map(function (id) { return rowHTML(id, P, d); }).join('') + '</div>' +
     (outIds.length ? '<p class="out-line">Sitting out: ' + outIds.map(nm).join(', ') + '</p>' : '') +
     '<div class="hand-foot">' +
       '<div class="pot-line"><span>Pot</span><strong id="h-pot">' + fmt(E.pot) + '</strong></div>' +
-      '<div class="winner-head"><span id="winner-label">Who won?</span>' +
+      '<p class="pot-break" id="h-break"></p>' +
+      '<div class="winner-head"><span id="winner-label">' + mainLabel(E) + '</span>' +
         '<label class="split"><input type="checkbox" id="split-toggle"' + (d.split ? ' checked' : '') + '><span>Split pot</span></label></div>' +
-      '<div class="winner-chips" role="group" aria-labelledby="winner-label">' + P.active.map(function (id) { return winChipHTML(id, d); }).join('') + '</div>' +
+      '<div class="winner-chips" id="h-main" role="group" aria-labelledby="winner-label">' + P.active.map(function (id) {
+        return winChipHTML(id, mainSel(E, id), !!d.folded[id], 'data-action="win" data-id="' + id + '"');
+      }).join('') + '</div>' +
+      '<div id="h-side"></div>' +
       '<div class="preview" id="h-preview"></div>' +
-      '<p class="hint" id="h-hint" aria-live="polite"></p>' +
+      '<div class="hint" id="h-hint" aria-live="polite"></div>' +
       '<button type="button" class="btn-primary" id="record-btn" data-action="record">Record hand ' + n + '</button>' +
       '<button type="button" class="btn-text" data-action="clear-hand">Clear this hand</button>' +
     '</div>';
@@ -1075,43 +1324,36 @@ function renderLive(P, d, E) {
   if (!d) return;
   E = E || evalDraft(P, d);
   var hp = $('#h-pot'); if (hp) hp.textContent = fmt(E.pot);
+  var hb = $('#h-break'); if (hb) hb.textContent = breakText(E);
+  var wl = $('#winner-label'); if (wl) wl.textContent = mainLabel(E).replace(/&amp;/g, '&');
   P.active.forEach(function (id) {
     var b = $('#hand [data-action="call"][data-id="' + id + '"]');
     if (b) {
-      var tc = E.max - (d.bets[id] || 0);
+      var stuck = d.folded[id] || (d.allin && d.allin[id]);
+      var tc = stuck ? 0 : E.max - (d.bets[id] || 0);
       b.disabled = tc <= 0;
       b.innerHTML = tc > 0 ? 'Call<small>+' + short(tc) + '</small>' : 'Call';
-      b.setAttribute('aria-label', tc > 0 ? nm(id) + ' calls ' + fmt(tc) + ' more' : nm(id) + ' has matched the highest bet');
+      b.setAttribute('aria-label', tc > 0 ? nm(id) + ' calls ' + fmt(tc) + ' more' : stuck ? nm(id) + (d.folded[id] ? ' folded' : ' is all in') : nm(id) + ' has matched the highest bet');
     }
     var inp = $('#hand .amt-input[data-id="' + id + '"]');
     if (inp && inp !== document.activeElement) inp.value = pounds(d.bets[id] || 0);
+    var wc = $('#h-main [data-id="' + id + '"]');
+    if (wc) wc.setAttribute('aria-pressed', String(mainSel(E, id)));
   });
   updateTableLive(P, d);
+  var hs = $('#h-side');
+  if (hs) hs.innerHTML = sidePotsHTML(E, function (key, id) { return 'data-action="side-win" data-key="' + key + '" data-id="' + id + '"'; });
   var pv = $('#h-preview');
   if (pv) {
-    pv.innerHTML = E.winners.length ? P.active.map(function (id) {
+    pv.innerHTML = E.ok ? P.active.map(function (id) {
       return '<span class="pv"><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + ' <b class="' + tone(E.net[id]) + '">' + fmtS(E.net[id]) + '</b></span>';
     }).join('') : '';
   }
   var hint = $('#h-hint');
   if (hint) {
-    var msg = '', warn = false;
-    if (!E.winners.length) {
-      msg = 'Enter what everyone put in, then tap who won.';
-    } else {
-      if (E.winners.length > 1) {
-        var shareVals = E.winners.map(function (w) { return E.shares[w]; });
-        var even = shareVals.every(function (v) { return v === shareVals[0]; });
-        msg = E.winners.map(nm).join(' and ') + ' split ' + fmt(E.pot) + (even
-          ? ', ' + short(shareVals[0]) + ' each.'
-          : ': ' + E.winners.map(function (w) { return nm(w) + ' ' + short(E.shares[w]); }).join(', ') + '. The odd penny goes to whoever sits nearest the dealer\u2019s left.');
-      } else {
-        msg = nm(E.winners[0]) + ' wins ' + fmt(E.pot) + '.';
-      }
-      if (E.mismatch) { msg += ' Players still in put in different amounts, so check the totals.'; warn = true; }
-    }
-    hint.innerHTML = msg;
-    hint.classList.toggle('warn', warn);
+    var h = hintFor(E, function (id, kind) { return 'data-action="' + (kind === 'fold' ? 'fold-on' : 'allin-on') + '" data-id="' + id + '"'; });
+    hint.innerHTML = h.html;
+    hint.classList.toggle('warn', h.warn);
   }
   var rb = $('#record-btn'); if (rb) rb.disabled = !E.ok || busy;
 }
@@ -1213,6 +1455,24 @@ function renderChart() {
     }).join('') + '</div>';
 }
 
+function potCellHTML(h) {
+  var live = (h.pots || []).filter(function (p) { return !p.returned; });
+  if (live.length > 1 && !sameWinnersAll(live)) {
+    return fmt(h.pot) + live.map(function (p, k) {
+      return '<span class="win">' + p.winners.map(nm).join(' & ') + ' <em>' + (k === 0 ? 'main' : 'side') + '</em></span>';
+    }).join('');
+  }
+  return fmt(h.pot) + '<span class="win">' + h.winners.map(nm).join(' & ') + (h.winners.length > 1 ? ' <em>split</em>' : '') + '</span>';
+}
+function winnerText(h) {
+  var live = (h.pots || []).filter(function (p) { return !p.returned; });
+  if (live.length > 1 && !sameWinnersAll(live)) {
+    return live.map(function (p, k) {
+      return p.winners.map(rawName).join(' & ') + ' (' + (k === 0 ? 'main' : 'side') + ' ' + (p.amt / 100).toFixed(2) + ')';
+    }).join('; ');
+  }
+  return h.winners.map(rawName).join(' & ');
+}
 function renderHistory() {
   var el = $('#history');
   var H = S.hands;
@@ -1230,13 +1490,13 @@ function renderHistory() {
       if (h.players.indexOf(id) < 0) return '<td class="outc">Out</td>';
       var pos = h.bbP === id ? 'BB' : h.sbP === id ? 'SB' : (h.button === id ? 'D' : '');
       var nt = h.net[id] || 0;
-      var fd = h.folded && h.folded[id];
-      return '<td' + (fd ? ' class="fd"' : '') + '><span class="b">' + (pos ? '<i>' + pos + '</i>' : '') + fmt(h.bets[id] || 0) + '</span>' +
+      var fd = h.folded && h.folded[id], ai = h.allin && h.allin[id];
+      return '<td' + (fd ? ' class="fd"' : ai ? ' class="ai"' : '') + '><span class="b">' + (pos ? '<i>' + pos + '</i>' : '') + fmt(h.bets[id] || 0) + '</span>' +
         '<span class="pl ' + tone(nt) + '">' + fmtS(nt) + '</span></td>';
     }).join('');
     rows.push('<tr><th scope="row"><button type="button" class="hn" data-action="edit-hand" data-hid="' + h.id + '" aria-label="Edit hand ' + n + '">' + n + '</button></th>' +
       cells +
-      '<td class="potc">' + fmt(h.pot) + '<span class="win">' + h.winners.map(nm).join(' & ') + (h.winners.length > 1 ? ' <em>split</em>' : '') + '</span></td></tr>');
+      '<td class="potc">' + potCellHTML(h) + '</td></tr>');
   }
   el.innerHTML = head +
     '<div class="table-scroll"><table class="hist">' +
@@ -1244,7 +1504,7 @@ function renderHistory() {
         ids.map(function (id) { return '<th scope="col"><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</th>'; }).join('') +
         '<th scope="col">Pot<br>winner</th></tr></thead>' +
       '<tbody>' + rows.join('') + '</tbody></table></div>' +
-    '<p class="note">Each player shows what they put in, with their profit or loss underneath. The pot column shows who won it. Tap a hand number to edit or delete it.</p>' +
+    '<p class="note">Each player shows what they put in, with their profit or loss underneath. The pot column shows who won it, and amber amounts were all in. Tap a hand number to edit or delete it.</p>' +
     '<div class="sec-foot"><button type="button" class="btn-ghost sm" data-action="export-csv">Export hands (CSV)</button></div>';
 }
 
@@ -1270,11 +1530,24 @@ function toggleFold(id) {
     var left = P.active.filter(function (x) { return !d.folded[x] && x !== id; });
     if (left.length < 1) { toast('Someone has to win the pot.'); return; }
     d.folded[id] = true;
+    if (d.allin) delete d.allin[id];
     d.winners = d.winners.filter(function (w) { return w !== id; });
     if (left.length === 1) { d.winners = [left[0]]; d.split = false; }
   } else {
     delete d.folded[id];
   }
+  d.touched = true;
+  save();
+  render();
+}
+
+function toggleAllin(id, on) {
+  var d = S.draft;
+  if (!d) return;
+  if (!d.allin) d.allin = {};
+  var next = on === undefined ? !d.allin[id] : on;
+  if (next) { d.allin[id] = true; delete d.folded[id]; }
+  else delete d.allin[id];
   d.touched = true;
   save();
   render();
@@ -1288,6 +1561,28 @@ function pickWinner(id) {
   } else {
     d.winners = (d.winners.length === 1 && d.winners[0] === id) ? [] : [id];
   }
+  d.sideWinners = {};   /* side pots follow the new main winner again */
+  d.touched = true;
+  save();
+  render();
+}
+
+function pickSide(key, id) {
+  var P = positions(), d = S.draft;
+  if (!P.ok || !d) return;
+  if (!d.sideWinners) d.sideWinners = {};
+  var pots = evalDraft(P, d).pots, at = -1;
+  pots.forEach(function (p, k) { if (p.key === key) at = k; });
+  if (at < 0) return;
+  var pot = pots[at];
+  pots.forEach(function (p, k) { if (k > at) delete d.sideWinners[p.key]; });
+  if (d.split) {
+    var cur = pot.winners.slice(), i = cur.indexOf(id);
+    if (i > -1) cur.splice(i, 1); else cur.push(id);
+    d.sideWinners[key] = cur;
+  } else {
+    d.sideWinners[key] = [id];
+  }
   d.touched = true;
   save();
   render();
@@ -1296,7 +1591,10 @@ function pickWinner(id) {
 function onSplit(on) {
   var d = S.draft; if (!d) return;
   d.split = on;
-  if (!on && d.winners.length > 1) d.winners = [d.winners[0]];
+  if (!on) {
+    if (d.winners.length > 1) d.winners = [d.winners[0]];
+    Object.keys(d.sideWinners || {}).forEach(function (k) { if (d.sideWinners[k].length > 1) d.sideWinners[k] = [d.sideWinners[k][0]]; });
+  }
   d.touched = true;
   save();
   render();
@@ -1353,16 +1651,21 @@ function record() {
   if (!P.ok) return;
   var d = ensureDraft(P);
   var E = evalDraft(P, d);
-  if (!E.ok) { toast('Tap who won first.'); return; }
+  if (!E.ok) { toast(problemPlain(E) || 'Tap who won first.'); return; }
   var n = S.hands.length + 1;
-  var bets = {}, folded = {};
-  P.active.forEach(function (id) { bets[id] = d.bets[id] || 0; if (d.folded[id]) folded[id] = true; });
+  var bets = {}, folded = {}, allin = {};
+  P.active.forEach(function (id) {
+    bets[id] = d.bets[id] || 0;
+    if (d.folded[id]) folded[id] = true;
+    if (d.allin && d.allin[id]) allin[id] = true;
+  });
   var hand = {
     id: uid(), ts: Date.now(),
     button: P.button, sbP: P.sb, bbP: P.bb, sbAmt: S.sb, bbAmt: S.bb,
-    players: P.active.slice(), bets: bets, folded: folded,
-    winners: E.winners.slice(), pot: E.pot, net: E.net
+    players: P.active.slice(), bets: bets, folded: folded, allin: allin,
+    winners: E.winnersAll.slice(), pot: E.pot, net: E.net
   };
+  if (E.pots.length > 1) hand.pots = potsForRecord(E.pots);
   busy = true;
   var rb = $('#record-btn'); if (rb) rb.disabled = true;
   var felt = $('#felt'), wait = 0;
@@ -1370,7 +1673,7 @@ function record() {
     felt.scrollIntoView({ behavior: REDUCE_MOTION ? 'auto' : 'smooth', block: 'start' });
     wait = REDUCE_MOTION ? 0 : 420;
   }
-  setTimeout(function () { sweepChips(E.winners[0], finish); }, wait);
+  setTimeout(function () { sweepChips(E.winnersAll[0], finish); }, wait);
   function finish() {
     S.hands.push(hand);
     S.dealerOverride = null;
@@ -1379,8 +1682,7 @@ function record() {
     busy = false;
     var puck = $('#puck'); if (puck && !REDUCE_MOTION) puck.classList.add('animate');
     render();
-    var who = E.winners.map(rawName).join(' & ');
-    toast('Hand ' + n + ': ' + who + (E.winners.length > 1 ? ' split ' : ' won ') + fmt(E.pot) + '.', { action: 'Undo', onAction: undoLast });
+    toast('Hand ' + n + ': ' + outcomeText(E, false, true), { action: 'Undo', onAction: undoLast });
   }
 }
 
@@ -1420,7 +1722,12 @@ function undoLast() {
   if (P.ok && P.button === h.button && P.sb === h.sbP && P.bb === h.bbP && sameIds(P.active, h.players) && S.sb === h.sbAmt && S.bb === h.bbAmt) {
     var bets = {};
     P.active.forEach(function (id) { bets[id] = h.bets[id] || 0; });
-    S.draft = { key: posKey(P), bets: bets, folded: Object.assign({}, h.folded || {}), winners: h.winners.slice(), split: h.winners.length > 1, hist: {}, touched: true };
+    var mw = mainWinnersOf(h), sw = sideFromPots(h.pots);
+    var split = mw.length > 1 || (h.pots || []).some(function (p) { return p.winners.length > 1 && !p.returned; });
+    S.draft = {
+      key: posKey(P), bets: bets, folded: Object.assign({}, h.folded || {}), allin: Object.assign({}, h.allin || {}),
+      winners: mw, sideWinners: sw, split: split, hist: {}, touched: true
+    };
     restored = true;
   } else {
     S.draft = null;
@@ -1447,49 +1754,125 @@ function editHand(hid) {
   var idx = S.hands.findIndex(function (h) { return h.id === hid; });
   if (idx < 0) return;
   var h = S.hands[idx], n = idx + 1;
-  var winners = h.winners.slice();
+  var t = {
+    bets: Object.assign({}, h.bets), bad: {},
+    folded: Object.assign({}, h.folded || {}),
+    allin: Object.assign({}, h.allin || {}),
+    winners: mainWinnersOf(h),
+    sideWinners: sideFromPots(h.pots),
+    split: mainWinnersOf(h).length > 1
+  };
   function minFor(id) { return id === h.bbP ? h.bbAmt : id === h.sbP ? h.sbAmt : 0; }
-  function posFor(id) { return id === h.bbP ? 'BB' : id === h.sbP ? 'SB' : ''; }
+  function posFor(id) { return id === h.bbP ? 'BB' : id === h.sbP ? 'SB' : (id === h.button && h.players.length > 2 ? 'D' : ''); }
+  function calc() {
+    return computeHand({ players: h.players, bets: t.bets, folded: t.folded, allin: t.allin, winners: t.winners, sideWinners: t.sideWinners, button: h.button });
+  }
+  function toggleIn(list, id) { return list.indexOf(id) > -1 ? list.filter(function (x) { return x !== id; }) : list.concat(id); }
+  function rowsHTML() {
+    return h.players.map(function (id) {
+      var pos = posFor(id);
+      return '<div class="edit-row' + (t.folded[id] ? ' is-folded' : '') + (t.allin[id] ? ' is-allin' : '') + '">' +
+        '<div class="er-top"><span class="dot" style="--c:' + col(id) + '"></span><span class="pname">' + nm(id) + '</span>' +
+          (pos ? '<span class="pos">' + pos + '</span>' : '') +
+          '<label class="amt"><span aria-hidden="true">\u00A3</span><input class="edit-amt" data-eid="' + id + '" type="text" inputmode="decimal" autocomplete="off" value="' + pounds(t.bets[id] || 0) + '" aria-label="' + nm(id) + ' total put in"></label></div>' +
+        '<div class="er-tog">' +
+          '<button type="button" class="tog" data-ef="' + id + '" aria-pressed="' + !!t.folded[id] + '">Folded</button>' +
+          '<button type="button" class="tog tog-ai" data-ea="' + id + '" aria-pressed="' + !!t.allin[id] + '">All in</button>' +
+        '</div></div>';
+    }).join('');
+  }
+  function potsHTML() {
+    var R = calc();
+    var hint = hintFor(R, function (id, kind) { return (kind === 'fold' ? 'data-efon="' : 'data-eaon="') + id + '"'; });
+    var bt = breakText(R);
+    return '<div class="edit-pot"><span class="muted">Pot</span><strong>' + fmt(R.pot) + '</strong></div>' +
+      (bt ? '<p class="pot-break">' + bt + '</p>' : '') +
+      '<div class="winner-head"><span>' + mainLabel(R) + '</span>' +
+        '<label class="split"><input type="checkbox" class="e-split"' + (t.split ? ' checked' : '') + '><span>Split pot</span></label></div>' +
+      '<div class="winner-chips">' + h.players.map(function (id) {
+        return winChipHTML(id, mainSel(R, id), !!t.folded[id], 'data-ew="' + id + '"');
+      }).join('') + '</div>' +
+      sidePotsHTML(R, function (key, id) { return 'data-es="' + key + '" data-esid="' + id + '"'; }) +
+      '<div class="hint' + (hint.warn ? ' warn' : '') + '">' + hint.html + '</div>';
+  }
   var html =
     '<p class="muted">' + new Date(h.ts).toLocaleString('en-GB', { weekday: 'short', hour: 'numeric', minute: '2-digit' }) + '. Dealer ' + nm(h.button) + '.</p>' +
-    h.players.map(function (id) {
-      var pos = posFor(id);
-      return '<div class="edit-row"><span class="dot" style="--c:' + col(id) + '"></span><span class="pname">' + nm(id) + '</span>' +
-        (pos ? '<span class="pos">' + pos + '</span>' : '') +
-        '<label class="amt"><span aria-hidden="true">\u00A3</span><input class="edit-amt" data-eid="' + id + '" type="text" inputmode="decimal" autocomplete="off" value="' + pounds(h.bets[id] || 0) + '" aria-label="' + nm(id) + ' total put in"></label></div>';
-    }).join('') +
-    '<div class="edit-pot"><span class="muted">Pot</span><strong id="e-pot">' + fmt(h.pot) + '</strong></div>' +
-    '<p class="sh">Who won? <span class="muted">(pick more than one for a split pot)</span></p>' +
-    '<div class="winner-chips" id="e-winners">' + h.players.map(function (id) {
-      return '<button type="button" class="wchip" data-ew="' + id + '" style="--c:' + col(id) + '" aria-pressed="' + (winners.indexOf(id) > -1) + '"><span class="dot" style="--c:' + col(id) + '"></span>' + nm(id) + '</button>';
-    }).join('') + '</div>' +
+    '<div id="e-rows">' + rowsHTML() + '</div>' +
+    '<div id="e-pots">' + potsHTML() + '</div>' +
     '<p class="err" id="e-err" role="alert"></p>';
-
-  function readBets(sheet) {
-    var bets = {}, bad = false;
-    $$('.edit-amt', sheet).forEach(function (inp) {
-      var v = parseMoney(inp.value);
-      if (v === null) bad = true;
-      bets[inp.getAttribute('data-eid')] = v === null ? 0 : v;
-    });
-    return bad ? null : bets;
-  }
 
   openModal({
     title: 'Edit hand ' + n,
     html: html,
     mount: function (sheet) {
+      var err = function (m) { $('#e-err', sheet).textContent = m; };
+      function redrawPots() { $('#e-pots', sheet).innerHTML = potsHTML(); }
+      function redrawAll() { $('#e-rows', sheet).innerHTML = rowsHTML(); redrawPots(); }
       sheet.addEventListener('input', function (e) {
-        if (!e.target.classList.contains('edit-amt')) return;
-        var bets = readBets(sheet);
-        $('#e-pot', sheet).textContent = bets ? fmt(Object.keys(bets).reduce(function (a, k) { return a + bets[k]; }, 0)) : '\u2013';
+        var inp = e.target;
+        if (!inp.classList || !inp.classList.contains('edit-amt')) return;
+        var id = inp.getAttribute('data-eid'), v = parseMoney(inp.value);
+        if (v === null) t.bad[id] = true; else { delete t.bad[id]; t.bets[id] = v; }
+        err('');
+        redrawPots();
+      });
+      sheet.addEventListener('change', function (e) {
+        if (!e.target.classList || !e.target.classList.contains('e-split')) return;
+        t.split = e.target.checked;
+        if (!t.split) {
+          if (t.winners.length > 1) t.winners = [t.winners[0]];
+          Object.keys(t.sideWinners).forEach(function (k) { if (t.sideWinners[k].length > 1) t.sideWinners[k] = [t.sideWinners[k][0]]; });
+        }
+        redrawPots();
       });
       sheet.addEventListener('click', function (e) {
-        var b = e.target.closest('[data-ew]');
-        if (!b) return;
-        var id = b.getAttribute('data-ew');
-        winners = winners.indexOf(id) > -1 ? winners.filter(function (w) { return w !== id; }) : winners.concat(id);
-        b.setAttribute('aria-pressed', String(winners.indexOf(id) > -1));
+        var b, id;
+        err('');
+        if ((b = e.target.closest('[data-ew]'))) {
+          id = b.getAttribute('data-ew');
+          if (t.folded[id]) return;
+          t.winners = t.split ? toggleIn(t.winners, id) : ((t.winners.length === 1 && t.winners[0] === id) ? [] : [id]);
+          t.sideWinners = {};
+          redrawPots(); return;
+        }
+        if ((b = e.target.closest('[data-es]'))) {
+          var key = b.getAttribute('data-es'); id = b.getAttribute('data-esid');
+          var cps = calc().pots, at = -1;
+          cps.forEach(function (p, k) { if (p.key === key) at = k; });
+          var pot = cps[at];
+          cps.forEach(function (p, k) { if (at > -1 && k > at) delete t.sideWinners[p.key]; });
+          t.sideWinners[key] = t.split ? toggleIn(pot ? pot.winners : [], id) : [id];
+          redrawPots(); return;
+        }
+        if ((b = e.target.closest('[data-ef]'))) {
+          id = b.getAttribute('data-ef');
+          if (!t.folded[id]) {
+            var left = h.players.filter(function (x) { return !t.folded[x] && x !== id; });
+            if (!left.length) { err('Someone has to win the pot.'); return; }
+            t.folded[id] = true; delete t.allin[id];
+            t.winners = t.winners.filter(function (w) { return w !== id; });
+            if (left.length === 1) t.winners = [left[0]];
+          } else delete t.folded[id];
+          redrawAll(); return;
+        }
+        if ((b = e.target.closest('[data-ea]'))) {
+          id = b.getAttribute('data-ea');
+          if (t.allin[id]) delete t.allin[id]; else { t.allin[id] = true; delete t.folded[id]; }
+          redrawAll(); return;
+        }
+        if ((b = e.target.closest('[data-efon]'))) {
+          id = b.getAttribute('data-efon');
+          if (h.players.filter(function (x) { return !t.folded[x] && x !== id; }).length) {
+            t.folded[id] = true; delete t.allin[id];
+            t.winners = t.winners.filter(function (w) { return w !== id; });
+          }
+          redrawAll(); return;
+        }
+        if ((b = e.target.closest('[data-eaon]'))) {
+          id = b.getAttribute('data-eaon');
+          t.allin[id] = true; delete t.folded[id];
+          redrawAll();
+        }
       });
     },
     actions: [
@@ -1508,19 +1891,22 @@ function editHand(hid) {
       { label: 'Cancel' },
       { label: 'Save changes', kind: 'primary', onClick: function (close, sheet) {
           var err = $('#e-err', sheet);
-          var bets = readBets(sheet);
-          if (!bets) { err.textContent = 'One of the amounts isn\u2019t a number. Use pounds, like 1.50.'; return false; }
-          for (var k in bets) {
-            if (bets[k] < minFor(k)) { err.textContent = rawName(k) + ' posted the blind, so it can\u2019t be less than ' + fmt(minFor(k)) + '.'; return false; }
+          if (Object.keys(t.bad).length) { err.textContent = 'One of the amounts isn\u2019t a number. Use pounds, like 1.50.'; return false; }
+          for (var i = 0; i < h.players.length; i++) {
+            var k = h.players[i];
+            if ((t.bets[k] || 0) < minFor(k)) { err.textContent = rawName(k) + ' posted the blind, so it can\u2019t be less than ' + fmt(minFor(k)) + '.'; return false; }
           }
-          if (!winners.length) { err.textContent = 'Pick who won.'; return false; }
-          var pot = Object.keys(bets).reduce(function (a, k2) { return a + bets[k2]; }, 0);
-          if (pot <= 0) { err.textContent = 'The pot can\u2019t be empty.'; return false; }
-          var shares = distribute(pot, winners, h.button), net = {};
-          h.players.forEach(function (id) { net[id] = (shares[id] || 0) - (bets[id] || 0); });
-          var folded = Object.assign({}, h.folded || {});
-          winners.forEach(function (w) { delete folded[w]; });
-          Object.assign(h, { bets: bets, winners: winners.slice(), pot: pot, net: net, folded: folded });
+          var R = calc();
+          if (R.pot <= 0) { err.textContent = 'The pot can\u2019t be empty.'; return false; }
+          if (!R.ok) { err.textContent = problemPlain(R); return false; }
+          var bets = {}, folded = {}, allin = {};
+          h.players.forEach(function (id) {
+            bets[id] = t.bets[id] || 0;
+            if (t.folded[id]) folded[id] = true;
+            if (t.allin[id]) allin[id] = true;
+          });
+          Object.assign(h, { bets: bets, folded: folded, allin: allin, winners: R.winnersAll.slice(), pot: R.pot, net: R.net });
+          if (R.pots.length > 1) h.pots = potsForRecord(R.pots); else delete h.pots;
           save(); render();
           toast('Hand ' + n + ' updated.');
         } }
@@ -1707,41 +2093,13 @@ function exportCSV() {
   var rows = S.hands.map(function (h, i) {
     return [i + 1, new Date(h.ts).toLocaleString('en-GB'), rawName(h.button), rawName(h.sbP), rawName(h.bbP)]
       .concat(ids.map(function (id) { return h.players.indexOf(id) > -1 ? (h.bets[id] / 100).toFixed(2) : 'out'; }))
-      .concat([(h.pot / 100).toFixed(2), h.winners.map(rawName).join(' & ')])
+      .concat([(h.pot / 100).toFixed(2), winnerText(h)])
       .concat(ids.map(function (id) { return h.players.indexOf(id) > -1 ? ((h.net[id] || 0) / 100).toFixed(2) : ''; }));
   });
   var csv = '\ufeff' + [head].concat(rows).map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
   download('flat1-poker-hands-' + isoDate(Date.now()) + '.csv', 'text/csv;charset=utf-8', csv);
   toast('Hands exported.');
 }
-function backup() {
-  download('flat1-poker-backup-' + isoDate(Date.now()) + '.json', 'application/json',
-    JSON.stringify({ app: 'flat1-poker', saved: Date.now(), state: S }, null, 1));
-  toast('Backup saved. Keep the file somewhere safe.');
-}
-function onRestore(input) {
-  var f = input.files && input.files[0];
-  input.value = '';
-  if (!f) return;
-  var reader = new FileReader();
-  reader.onload = function () {
-    var data;
-    try { data = JSON.parse(reader.result); } catch (e) { toast('That file isn\u2019t a Flat 1 Poker backup.'); return; }
-    var raw = data && data.state ? data.state : data;
-    if (!raw || !Array.isArray(raw.hands)) { toast('That file isn\u2019t a Flat 1 Poker backup.'); return; }
-    var next = sanitize(raw);
-    var when = data.saved ? ' from ' + dateStr(data.saved) : '';
-    confirmBox('Restore backup' + when + '?',
-      'It has ' + plural(next.hands.length, 'hand') + ' in the current session and ' + plural(next.archive.length, 'past session') + '. Everything on this device is replaced.',
-      'Restore backup', true).then(function (ok) {
-        if (!ok) return;
-        S = next; save(); tableBuilt = false; render();
-        toast('Backup restored.');
-      });
-  };
-  reader.readAsText(f);
-}
-
 /* ---------- keep screen on ---------- */
 var wakeLock = null, wantWake = false;
 function setWake(on) {
@@ -1767,6 +2125,470 @@ document.addEventListener('visibilitychange', function () {
     }).catch(function () {});
   }
 });
+
+/* =========================================================
+   Cloud: backups through the share sheet, and Google Drive sync
+   ========================================================= */
+/* Optional: paste your Google OAuth client ID between the quotes so every
+   phone that opens the site is ready to connect, for example
+   '123456-abcdef.apps.googleusercontent.com'. It can also be typed into
+   the app under Cloud backup. */
+var GOOGLE_CLIENT_ID = '';
+
+var CLOUD_KEY = 'flat1poker:cloud';
+var TOKEN_KEY = 'flat1poker:gtoken';
+var PENDING_KEY = 'flat1poker:gpending';
+var DRIVE_FILE = 'Flat 1 Poker data.json';
+var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+var DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
+var DRIVE_UP = 'https://www.googleapis.com/upload/drive/v3/files';
+
+function loadCloud() {
+  try { var c = JSON.parse(localStorage.getItem(CLOUD_KEY) || '{}'); return c && typeof c === 'object' ? c : {}; }
+  catch (e) { return {}; }
+}
+var C = loadCloud();   /* clientId, connected, fileId, remoteTime, lastSig, lastSync, email, lastShare */
+function saveCloud() { try { localStorage.setItem(CLOUD_KEY, JSON.stringify(C)); } catch (e) {} }
+function clientId() { return String(C.clientId || GOOGLE_CLIENT_ID || '').trim(); }
+function redirectUri() { return location.origin + location.pathname.replace(/index\.html$/, ''); }
+
+function exportState() {
+  var copy = JSON.parse(JSON.stringify(S));
+  copy.draft = null;
+  return copy;
+}
+function stateSig() {
+  var copy = exportState(); copy.owesView = '';
+  var s = JSON.stringify(copy), h = 5381;
+  for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return s.length + ':' + (h >>> 0).toString(36);
+}
+function backupText() { return JSON.stringify({ app: 'flat1-poker', saved: Date.now(), state: exportState() }, null, 1); }
+function stateFromBackup(data) {
+  var raw = data && data.state ? data.state : data;
+  if (!raw || typeof raw !== 'object' || !Array.isArray(raw.hands)) return null;
+  return sanitize(raw);
+}
+
+/* ---------- 1. Save or load a backup file (iCloud Drive, Google Drive, Files) ---------- */
+function saveToCloud() {
+  var text = backupText();
+  var base = 'flat1-poker-backup-' + isoDate(Date.now());
+  var file = null;
+  try {
+    if (navigator.canShare) {
+      var j = new File([text], base + '.json', { type: 'application/json' });
+      var t = new File([text], base + '.txt', { type: 'text/plain' });
+      if (navigator.canShare({ files: [j] })) file = j;
+      else if (navigator.canShare({ files: [t] })) file = t;
+    }
+  } catch (e) { file = null; }
+  if (file) {
+    navigator.share({ files: [file], title: 'Flat 1 Poker backup' }).then(function () {
+      C.lastShare = Date.now(); saveCloud(); refreshCloud();
+      toast('Backup saved.');
+    }).catch(function (e) {
+      if (e && e.name === 'AbortError') return;
+      download(base + '.json', 'application/json', text);
+      C.lastShare = Date.now(); saveCloud(); refreshCloud();
+      toast('Backup downloaded. Move it to iCloud Drive or Google Drive to keep it safe.');
+    });
+    return;
+  }
+  download(base + '.json', 'application/json', text);
+  C.lastShare = Date.now(); saveCloud(); refreshCloud();
+  toast('Backup downloaded. Move it to iCloud Drive or Google Drive to keep it safe.');
+}
+
+function onRestore(input) {
+  var f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    var data, next;
+    try { data = JSON.parse(reader.result); next = stateFromBackup(data); } catch (e) { next = null; }
+    if (!next) { toast('That file isn\u2019t a Flat 1 Poker backup.'); return; }
+    var when = data.saved ? ' from ' + dateStr(data.saved) : '';
+    confirmBox('Load backup' + when + '?',
+      'It has ' + plural(next.hands.length, 'hand') + ' in the current session and ' + plural(next.archive.length, 'past session') + '. It replaces everything on this phone.',
+      'Load backup', true).then(function (ok) {
+        if (!ok) return;
+        S = next; save(); render();
+        toast('Backup loaded.');
+      });
+  };
+  reader.readAsText(f);
+}
+
+/* ---------- 2. Google Drive sync ---------- */
+var syncStatus = 'idle';     /* idle | pending | syncing | ok | signin | offline | error | conflict */
+var syncing = false, syncAgain = false, syncTimer = null, tok = null;
+
+function setToken(t, sec) {
+  tok = { t: t, exp: Date.now() + Math.max(60, (sec || 3600) - 90) * 1000 };
+  try { localStorage.setItem(TOKEN_KEY, JSON.stringify(tok)); } catch (e) {}
+}
+function getToken() {
+  if (!tok) { try { tok = JSON.parse(localStorage.getItem(TOKEN_KEY) || 'null'); } catch (e) { tok = null; } }
+  return tok && tok.t && tok.exp > Date.now() ? tok.t : null;
+}
+function dropToken() { tok = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+function setSyncStatus(s) {
+  syncStatus = s;
+  renderMeta();
+  if (C.connected) refreshCloud();
+}
+
+/* Sends you to Google to allow access, then back here. A full-page
+   redirect works in home-screen apps, where pop-ups often don't. */
+function startGoogleAuth(next) {
+  var id = clientId();
+  if (!id) { toast('Add your Google client ID first.'); openCloud(); return; }
+  var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (location.protocol !== 'https:' && !local) { toast('Google Drive only works from your GitHub Pages link.'); return; }
+  save();
+  var st = uid() + uid();
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify({ state: st, next: next || 'sync', at: Date.now() })); } catch (e) {}
+  var q = {
+    client_id: id, redirect_uri: redirectUri(), response_type: 'token',
+    scope: DRIVE_SCOPE, include_granted_scopes: 'true', state: st
+  };
+  if (C.email) q.login_hint = C.email;
+  location.assign('https://accounts.google.com/o/oauth2/v2/auth?' + Object.keys(q).map(function (k) {
+    return k + '=' + encodeURIComponent(q[k]);
+  }).join('&'));
+}
+
+/* Reads the access token Google adds to the address after sign-in. */
+function handleAuthReturn() {
+  var h = location.hash;
+  if (!h || h.indexOf('state=') < 0) return null;
+  var p = {};
+  h.slice(1).split('&').forEach(function (kv) {
+    var i = kv.indexOf('=');
+    if (i > 0) p[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' '));
+  });
+  if (!p.state) return null;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  var pend = null;
+  try { pend = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); localStorage.removeItem(PENDING_KEY); } catch (e) {}
+  if (!pend || pend.state !== p.state) { toast('Google sign-in didn\u2019t match. Please try again.'); return null; }
+  if (p.error) {
+    toast(p.error === 'access_denied' ? 'Google Drive access wasn\u2019t allowed.' : 'Google sign-in failed (' + p.error + ').');
+    return null;
+  }
+  if (!p.access_token) return null;
+  setToken(p.access_token, parseInt(p.expires_in, 10));
+  return pend.next;
+}
+
+function gfetch(method, url, body, headers) {
+  var t = getToken();
+  if (!t) return Promise.reject({ auth: true });
+  var h = Object.assign({ Authorization: 'Bearer ' + t }, headers || {});
+  return fetch(url, { method: method, headers: h, body: body }).then(function (r) {
+    if (r.status === 401) { dropToken(); throw { auth: true }; }
+    if (r.status === 404) throw { notFound: true };
+    if (!r.ok) return r.text().then(function (tx) { throw { status: r.status, text: tx }; });
+    return r.text().then(function (tx) {
+      try { return JSON.parse(tx); } catch (e) { return tx; }
+    });
+  }, function () { throw { offline: true }; });
+}
+function driveFind() {
+  var q = "name = '" + DRIVE_FILE + "' and trashed = false";
+  return gfetch('GET', DRIVE_API + '?q=' + encodeURIComponent(q) +
+    '&orderBy=' + encodeURIComponent('modifiedTime desc') + '&pageSize=5&spaces=drive&fields=' + encodeURIComponent('files(id,modifiedTime)'))
+    .then(function (r) { return (r && r.files && r.files[0]) || null; });
+}
+function driveMeta(id) {
+  return gfetch('GET', DRIVE_API + '/' + encodeURIComponent(id) + '?fields=' + encodeURIComponent('id,modifiedTime,trashed'))
+    .then(function (m) { return m && !m.trashed ? m : null; }, function (e) { if (e && e.notFound) return null; throw e; });
+}
+function driveRead(id) { return gfetch('GET', DRIVE_API + '/' + encodeURIComponent(id) + '?alt=media'); }
+function driveCreate(text) {
+  var b = 'flat1poker' + uid();
+  var body = '--' + b + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify({ name: DRIVE_FILE, mimeType: 'application/json' }) + '\r\n' +
+    '--' + b + '\r\nContent-Type: application/json\r\n\r\n' + text + '\r\n--' + b + '--';
+  return gfetch('POST', DRIVE_UP + '?uploadType=multipart&fields=' + encodeURIComponent('id,modifiedTime'), body,
+    { 'Content-Type': 'multipart/related; boundary=' + b });
+}
+function driveUpdate(id, text) {
+  return gfetch('PATCH', DRIVE_UP + '/' + encodeURIComponent(id) + '?uploadType=media&fields=' + encodeURIComponent('id,modifiedTime'), text,
+    { 'Content-Type': 'application/json' });
+}
+function driveWho() {
+  return gfetch('GET', 'https://www.googleapis.com/drive/v3/about?fields=' + encodeURIComponent('user(emailAddress)'))
+    .then(function (r) { return r && r.user && r.user.emailAddress; }, function () { return null; });
+}
+
+/* Called after every local save: if the games changed, upload soon. */
+function onStateSaved() {
+  if (!C.connected) return;
+  if (stateSig() === C.lastSig) return;
+  if (syncStatus === 'ok' || syncStatus === 'idle') setSyncStatus('pending');
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(function () { syncNow(false); }, 2500);
+}
+
+function syncNow(interactive) {
+  if (!C.connected) return Promise.resolve();
+  clearTimeout(syncTimer);
+  if (syncing) { syncAgain = true; return Promise.resolve(); }
+  if (!getToken()) {
+    setSyncStatus('signin');
+    if (interactive) startGoogleAuth('sync');
+    return Promise.resolve();
+  }
+  syncing = true;
+  setSyncStatus('syncing');
+  var sig = stateSig();
+  var find = C.fileId ? driveMeta(C.fileId) : driveFind();
+  return find.then(function (meta) {
+    if (meta && meta.modifiedTime !== C.remoteTime) {
+      /* Changed on another phone since this one last synced. */
+      if (C.remoteTime && sig === C.lastSig) return applyRemoteFrom(meta, true);
+      setSyncStatus('conflict');
+      if (interactive) openConflict(meta);
+      return;
+    }
+    if (meta && sig === C.lastSig) { C.lastSync = Date.now(); saveCloud(); setSyncStatus('ok'); return; }
+    var text = backupText();
+    return (meta ? driveUpdate(meta.id, text) : driveCreate(text)).then(function (r) {
+      C.fileId = r.id; C.remoteTime = r.modifiedTime; C.lastSig = sig; C.lastSync = Date.now();
+      saveCloud();
+      setSyncStatus('ok');
+    });
+  }).catch(handleSyncError).then(function () {
+    syncing = false;
+    if (syncAgain) { syncAgain = false; syncNow(false); }
+  });
+}
+
+function applyRemote(next, meta, auto) {
+  var keep = S.draft;
+  S = next;
+  S.draft = keep;
+  writeLocal();
+  C.fileId = meta.id; C.remoteTime = meta.modifiedTime; C.lastSig = stateSig(); C.lastSync = Date.now();
+  saveCloud();
+  setSyncStatus('ok');
+  render();
+  toast(auto ? 'Loaded the latest games from Google Drive.' : 'Loaded your games from Google Drive.');
+}
+function applyRemoteFrom(meta, auto) {
+  return driveRead(meta.id).then(function (data) {
+    var next = stateFromBackup(data);
+    if (!next) throw { status: 0, text: 'bad file' };
+    applyRemote(next, meta, auto);
+  });
+}
+
+function handleSyncError(e) {
+  if (e && e.auth) { setSyncStatus('signin'); return; }
+  if (e && e.offline) { setSyncStatus('offline'); return; }
+  setSyncStatus('error');
+  var msg = 'Google Drive sync didn\u2019t work. Tap the Drive status to try again.';
+  var tx = (e && e.text) || '';
+  if (e && e.status === 403 && /accessNotConfigured|has not been used|is disabled|SERVICE_DISABLED/i.test(tx)) {
+    msg = 'Turn on the Google Drive API in your Google Cloud project, then try again.';
+  } else if (e && e.status === 403) {
+    msg = 'Google Drive said no. Check that your Google account is on the test users list.';
+  } else if (tx === 'bad file') {
+    msg = 'The Drive file isn\u2019t a Flat 1 Poker backup.';
+  }
+  C.lastError = msg; saveCloud();
+  toast(msg);
+}
+
+function openConflict(meta) {
+  openModal({
+    title: 'Which games do you want?',
+    html: '<p>The copy in Google Drive was changed on another phone (' + dateStr(Date.parse(meta.modifiedTime)) + ', ' + timeStr(Date.parse(meta.modifiedTime)) + '), and this phone has changes it hasn\u2019t synced.</p>' +
+      '<p class="muted">Whichever you don\u2019t pick gets replaced. If you\u2019re unsure, save a backup from this phone first.</p>',
+    actions: [
+      { label: 'Keep this phone\u2019s', onClick: function () {
+          C.fileId = meta.id; C.remoteTime = meta.modifiedTime; C.lastSig = null; saveCloud();
+          syncNow(true);
+        } },
+      { label: 'Use the Drive copy', kind: 'primary', onClick: function () {
+          setSyncStatus('syncing');
+          applyRemoteFrom(meta, false).catch(handleSyncError);
+        } }
+    ]
+  });
+}
+
+/* First connection on this phone. */
+function finishConnect() {
+  setSyncStatus('syncing');
+  driveWho().then(function (email) { if (email) { C.email = email; saveCloud(); refreshCloud(); } });
+  return driveFind().then(function (meta) {
+    C.connected = true; C.lastError = '';
+    saveCloud();
+    if (!meta) {
+      C.fileId = null; C.remoteTime = null; C.lastSig = null; saveCloud();
+      return syncNow(false).then(function () {
+        if (syncStatus === 'ok') toast('Google Drive connected. Your games now save there automatically.');
+      });
+    }
+    if (!S.hands.length && !S.archive.length) return applyRemoteFrom(meta, false);
+    return driveRead(meta.id).then(function (data) {
+      var remote = stateFromBackup(data);
+      if (!remote) throw { status: 0, text: 'bad file' };
+      setSyncStatus('conflict');
+      openModal({
+        title: 'You already have games in Drive',
+        html: '<p>Google Drive has ' + plural(remote.hands.length, 'hand') + ' in the current session and ' + plural(remote.archive.length, 'past session') +
+          '. This phone has ' + plural(S.hands.length, 'hand') + ' and ' + plural(S.archive.length, 'past session') + '. Which do you want to keep?</p>' +
+          '<p class="muted">The one you don\u2019t pick gets replaced.</p>',
+        actions: [
+          { label: 'Keep this phone\u2019s', onClick: function () {
+              C.fileId = meta.id; C.remoteTime = meta.modifiedTime; C.lastSig = null; saveCloud();
+              syncNow(false).then(function () { if (syncStatus === 'ok') toast('Google Drive connected and updated.'); });
+            } },
+          { label: 'Use the Drive copy', kind: 'primary', onClick: function () { applyRemote(remote, meta, false); } }
+        ]
+      });
+    });
+  }).catch(handleSyncError);
+}
+
+function loadFromDrive() {
+  if (!getToken()) { startGoogleAuth('pull'); return; }
+  setSyncStatus('syncing');
+  driveFind().then(function (meta) {
+    if (!meta) { setSyncStatus('ok'); toast('There\u2019s no Flat 1 Poker file in your Google Drive yet.'); return; }
+    return driveRead(meta.id).then(function (data) {
+      var next = stateFromBackup(data);
+      if (!next) throw { status: 0, text: 'bad file' };
+      setSyncStatus('ok');
+      var at = Date.parse(meta.modifiedTime);
+      confirmBox('Load from Google Drive?',
+        'The Drive copy was saved ' + dateStr(at) + ' at ' + timeStr(at) + ' and has ' + plural(next.hands.length, 'hand') +
+        ' in the current session. It replaces what\u2019s on this phone.', 'Load Drive copy', true).then(function (ok) {
+          if (ok) applyRemote(next, meta, false);
+        });
+    });
+  }).catch(handleSyncError);
+}
+
+function disconnectDrive() {
+  confirmBox('Disconnect Google Drive?', 'This phone stops saving to Drive. The file already in your Drive stays there.', 'Disconnect', true).then(function (ok) {
+    if (!ok) return;
+    var t = getToken();
+    if (t) { try { fetch('https://oauth2.googleapis.com/revoke?token=' + encodeURIComponent(t), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).catch(function () {}); } catch (e) {} }
+    dropToken();
+    C.connected = false; C.fileId = null; C.remoteTime = null; C.lastSig = null; C.lastSync = null; C.email = null;
+    saveCloud();
+    setSyncStatus('idle');
+    refreshCloud();
+    toast('Google Drive disconnected.');
+  });
+}
+
+/* The little Drive status button next to the blinds. */
+function syncChipHTML() {
+  if (!C.connected) return '';
+  var label = {
+    idle: 'Google Drive', pending: 'Saving to Drive\u2026', syncing: 'Saving to Drive\u2026',
+    ok: 'Saved to Drive' + (C.lastSync ? ' ' + timeStr(C.lastSync) : ''),
+    signin: 'Drive: tap to sync', offline: 'Offline, Drive will catch up',
+    error: 'Drive sync failed, tap to retry', conflict: 'Drive: tap to sort out'
+  }[syncStatus] || 'Google Drive';
+  return '<button type="button" class="sync-chip" data-action="sync-tap" data-s="' + syncStatus + '"><i aria-hidden="true"></i>' + label + '</button>';
+}
+function syncTap() {
+  if (syncStatus === 'ok' || syncStatus === 'syncing' || syncStatus === 'pending') { openCloud(); return; }
+  syncNow(true);
+}
+
+/* ---------- Cloud backup screen ---------- */
+var cloudSheet = null;
+function cloudBodyHTML() {
+  var html =
+    '<p class="sh">Save to iCloud Drive or Google Drive</p>' +
+    '<p class="muted">Saves a backup of every hand and session. On iPhone, choose <b>Save to Files</b>, then iCloud Drive. On Android, choose <b>Drive</b>. To get it back, tap Load a backup and pick the file.</p>' +
+    '<div class="btn-row"><button type="button" class="btn-ghost" data-c="save">Save backup</button>' +
+    '<button type="button" class="btn-ghost" data-c="load">Load a backup</button></div>' +
+    (C.lastShare ? '<p class="muted small">Last backup saved ' + dateStr(C.lastShare) + ', ' + timeStr(C.lastShare) + '.</p>' : '') +
+    '<p class="sh sh-sep">Automatic Google Drive sync</p>';
+  if (C.connected) {
+    var st = {
+      idle: 'Connected.', pending: 'Saving\u2026', syncing: 'Saving\u2026', ok: 'Up to date.',
+      signin: 'Google needs you to sign in again (it asks about once an hour while you play).',
+      offline: 'No internet. It\u2019ll catch up when you\u2019re back online.',
+      error: C.lastError || 'The last sync didn\u2019t work.', conflict: 'Drive and this phone both have changes. Tap Sync now to choose.'
+    }[syncStatus] || '';
+    html +=
+      '<p>Connected' + (C.email ? ' as <b>' + esc(C.email) + '</b>' : '') + '. Every change saves to <b>' + esc(DRIVE_FILE) + '</b> in your Google Drive.</p>' +
+      '<p class="muted">' + st + (C.lastSync ? ' Last synced ' + dateStr(C.lastSync) + ', ' + timeStr(C.lastSync) + '.' : '') + '</p>' +
+      '<div class="btn-row"><button type="button" class="btn-ghost" data-c="sync">Sync now</button>' +
+      '<button type="button" class="btn-ghost" data-c="pull">Load from Drive</button>' +
+      '<button type="button" class="btn-ghost" data-c="disconnect">Disconnect</button></div>';
+  } else {
+    html +=
+      '<p class="muted">Saves to your Google Drive after every hand, and lets another phone carry on where you left off. It needs a free one-time setup in Google Cloud (about 10 minutes, steps in the README).</p>' +
+      (GOOGLE_CLIENT_ID ? '' :
+        '<label class="lbl" for="c-client">Google client ID</label>' +
+        '<input class="field" id="c-client" autocomplete="off" spellcheck="false" placeholder="1234\u2026apps.googleusercontent.com" value="' + esc(C.clientId || '') + '">') +
+      '<p class="lbl">Address to add in Google Cloud</p>' +
+      '<code class="addr" id="c-addr">' + esc(redirectUri()) + '</code>' +
+      '<div class="btn-row"><button type="button" class="btn-ghost sm" data-c="copy">Copy address</button></div>' +
+      '<p class="err" id="c-err" role="alert"></p>' +
+      '<button type="button" class="btn-primary" data-c="connect" style="margin-top:12px">Connect Google Drive</button>';
+  }
+  return html;
+}
+function refreshCloud() {
+  if (!cloudSheet || !document.contains(cloudSheet)) { cloudSheet = null; return; }
+  var body = $('.sheet-body', cloudSheet);
+  if (!body) return;
+  var inp = $('#c-client', cloudSheet), typed = inp ? inp.value : null, had = inp && document.activeElement === inp;
+  body.innerHTML = cloudBodyHTML();
+  var again = $('#c-client', cloudSheet);
+  if (again && typed !== null) { again.value = typed; if (had) again.focus(); }
+}
+function openCloud() {
+  openModal({
+    title: 'Cloud backup',
+    html: cloudBodyHTML(),
+    onClose: function () { cloudSheet = null; },
+    mount: function (sheet) {
+      cloudSheet = sheet;
+      sheet.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-c]');
+        if (!b) return;
+        var what = b.getAttribute('data-c');
+        if (what === 'save') saveToCloud();
+        else if (what === 'load') $('#restore-file').click();
+        else if (what === 'sync') syncNow(true);
+        else if (what === 'pull') loadFromDrive();
+        else if (what === 'disconnect') disconnectDrive();
+        else if (what === 'copy') {
+          var a = redirectUri();
+          if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(a).then(function () { toast('Address copied.'); }, function () {});
+          else toast(a);
+        } else if (what === 'connect') {
+          var inp = $('#c-client', sheet), err = $('#c-err', sheet);
+          if (inp) {
+            var v = inp.value.trim();
+            if (!/^[\w-]+\.apps\.googleusercontent\.com$/.test(v)) {
+              err.textContent = 'That doesn\u2019t look like a client ID. It ends in .apps.googleusercontent.com.';
+              return;
+            }
+            C.clientId = v; saveCloud();
+          }
+          startGoogleAuth('connect');
+        }
+      });
+    },
+    actions: [{ label: 'Done' }]
+  });
+}
 
 /* =========================================================
    Toast and modal
@@ -1905,6 +2727,12 @@ document.addEventListener('click', function (e) {
       renderLive(); break;
     }
     case 'fold': toggleFold(id); break;
+    case 'allin': toggleAllin(id); break;
+    case 'allin-on': toggleAllin(id, true); break;
+    case 'fold-on': if (S.draft && !S.draft.folded[id]) toggleFold(id); break;
+    case 'side-win': pickSide(a.getAttribute('data-key'), id); break;
+    case 'cloud': openCloud(); break;
+    case 'sync-tap': syncTap(); break;
     case 'win': pickWinner(id); break;
     case 'record': record(); break;
     case 'clear-hand': clearHand(); break;
@@ -1914,8 +2742,6 @@ document.addEventListener('click', function (e) {
     case 'undo-hand': undoLast(); break;
     case 'edit-hand': editHand(a.getAttribute('data-hid')); break;
     case 'export-csv': exportCSV(); break;
-    case 'backup': backup(); break;
-    case 'restore': $('#restore-file').click(); break;
     case 'settings': openSettings(); break;
     case 'sessions': openSessions(); break;
     case 'new-session': newSession(); break;
@@ -1965,8 +2791,19 @@ window.addEventListener('storage', function (e) {
   if (e.key !== KEY || !e.newValue) return;
   try { S = sanitize(JSON.parse(e.newValue)); render(); } catch (err) {}
 });
+window.addEventListener('online', function () { if (C.connected && syncStatus === 'offline') syncNow(false); });
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' && C.connected && getToken() && !syncing) syncNow(false);
+});
 
+/* Start-up: finish a Google sign-in if we've just come back from one. */
+var authNext = handleAuthReturn();
+if (C.connected && !getToken()) syncStatus = stateSig() !== C.lastSig ? 'signin' : 'idle';
 render();
+if (authNext === 'connect') finishConnect();
+else if (authNext === 'pull') loadFromDrive();
+else if (authNext === 'sync') syncNow(true);
+else if (C.connected && getToken()) syncNow(false);
 })();
 </script>
 </body>
